@@ -42,7 +42,7 @@ function Landing() {
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <h3>{plan}</h3>
-                <p>{index === 0 ? 'Get started with limited access to our amazing features' : 'Unlock the full potential of NoteGenius'}</p>
+                <p>{index === 0 ? 'Get started with limited access to our amazing features' : 'Unlock the full potential of Notely'}</p>
                 <ul>
                   {index === 0 ? 
                     ['AI Community Note Connections', 'Up to 100 notes storage', 'Personal use only'].map((feature, i) => (
