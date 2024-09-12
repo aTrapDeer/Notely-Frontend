@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback, forwardRef } from 'rea
 const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isAltPressed, setIsAltPressed] = useState(false);
-  const [workspaceTransform, setInternalWorkspaceTransform] = useState({ x: 0, y: 500, scale: 1 });
+  const [workspaceTransform, setInternalWorkspaceTransform] = useState({ x: 0, y: -100, scale: 1 });
   const containerRef = useRef(null);
   const lastMousePosRef = useRef({ x: 0, y: 0 });
 

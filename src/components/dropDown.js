@@ -34,7 +34,7 @@ const Dropdown = ({ onSignOut, buttonClassName, menuClassName }) => {
     <div className="dropdown dropdown-end" ref={dropdownRef}>
       <label 
         tabIndex={0} 
-        className={`btn m-1 ${buttonClassName}`} 
+        className={`btn btn-primary m-1 bg-primary hover:bg-primary-focus text-primary-content font-bold py-0.5 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary transition duration-300 ease-in-out`}
         onClick={() => setIsOpen(!isOpen)}
       >
         Settings

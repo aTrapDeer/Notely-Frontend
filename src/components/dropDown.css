@@ -4,7 +4,7 @@
   right: 0;
   top: 100%;
   width: 256px;
-  background: #ffffff;
+  background: #5791fb;
   border-radius: 0.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   z-index: 50;
@@ -54,8 +54,8 @@
 
 /* Dropdown button styling */
 .dropdown-button {
-  background-color: #2f3c77; /* Darker gray to stand out */
-  color: #ffffff; /* White text for contrast */
+  background-color: var(--dropdown-button-bg, #2f3c77);
+  color: var(--dropdown-button-text, #ffffff);
   padding: 10px 15px; /* Sufficient padding for a good touch target */
   border: none; /* Remove default border */
   border-radius: 0.5rem; /* Match with the dropdown menu's border radius */
@@ -65,7 +65,7 @@
 }
 
 .dropdown-button:hover {
-  background-color: #272d58; /* Lighten slightly on hover */
+  background-color: var(--dropdown-button-hover-bg, #272d58);
 }
 
 .dropdown-button:active {
