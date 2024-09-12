@@ -1,0 +1,78 @@
+/* Existing dropdown menu styles */
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  width: 256px;
+  background: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  transform: translateY(-20px);
+}
+
+.dropdown-menu.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu.active {
+  animation: slideDown 0.3s ease forwards;
+}
+
+.dropdown-menu a {
+  color: #374151;
+  padding: 10px 15px;
+  display: block;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #e5e7eb;
+  text-decoration: none;
+}
+
+.dropdown-menu a:last-child {
+  border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f3f4f6;
+}
+
+/* Dropdown button styling */
+.dropdown-button {
+  background-color: #2f3c77; /* Darker gray to stand out */
+  color: #ffffff; /* White text for contrast */
+  padding: 10px 15px; /* Sufficient padding for a good touch target */
+  border: none; /* Remove default border */
+  border-radius: 0.5rem; /* Match with the dropdown menu's border radius */
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Softer shadow */
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.dropdown-button:hover {
+  background-color: #272d58; /* Lighten slightly on hover */
+}
+
+.dropdown-button:active {
+  transform: scale(0.97); /* Visual feedback on click */
+}
+
+.dropdown-button:focus {
+  outline: none; /* Remove the outline */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* Visible focus ring */
+}

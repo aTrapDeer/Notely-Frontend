@@ -1,0 +1,342 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* NoteTool.css */
+.dark-mode {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+  
+  .dark-mode h1 {
+    color: hsl(var(--primary));
+  }
+  
+  .dark-mode p {
+    color: hsl(var(--secondary));
+  }
+  
+  .App {
+    position: relative;
+    touch-action: none;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    background-color: #bfdbfe;
+  }
+  
+  
+  .top-bar {
+    position: sticky;
+    z-index: 10;
+    top: 0;
+    background-color: #3b82f6;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    height: 50px; /* Add a fixed height to the top bar */
+  }
+  .app-title {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+    margin-left: 1rem;
+
+  }
+  
+  .workspace-container {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+  }
+  
+  .workspace {
+    position: relative;
+    min-height: 100%;
+    min-width: 100%;
+    transform-origin: center center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .text-5xl {
+    font-size: 3rem; 
+  }
+  
+  .p-5 {
+    padding: 1.25rem; 
+  }
+  
+  .create-notes {
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 1;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: -900px; 
+  }
+
+
+  .flex {
+    display: flex;
+  }
+  
+  .flex-col {
+    flex-direction: column;
+  }
+  
+  .border-2 {
+    border-width: 2px;
+  }
+  
+  .border-blue-200 {
+    border-color: #bfdbfe; 
+  }
+  
+  .bg-blue-500 {
+    background-color: #3b82f6;
+  }
+  
+  .px-5 {
+    padding-left: 1.25rem; 
+    padding-right: 1.25rem; 
+  }
+  
+  .py-3 {
+    padding-top: 0.75rem; 
+    padding-bottom: 0.75rem; 
+  }
+  
+  .text-white {
+    color: #ffffff;
+  }
+  
+  .mt-4 {
+    margin-top: 1rem; /* Equivalent to 16px */
+  }
+  .notes-container {
+    height: calc(100vh - 200px);
+    
+  }
+  .note {
+    position: absolute;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    min-width: 200px;
+    max-width: 400px;
+    word-wrap: break-word; 
+  }
+  
+  .note-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .note-input,
+  .note-textarea {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical; 
+  }
+  
+  .note-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+
+  .note-content {
+    position: relative;
+    min-height: 10em;
+    padding: 0.5rem;
+    border: 2px solid #bfdbfe;
+    border-radius: 4px;
+    background-color: #ffffff;
+    overflow: auto;
+    white-space: pre-wrap;
+  }
+  
+  .note-content:focus {
+    outline: none;
+    border-color: #3b82f6;
+  }
+  
+  .note-content div {
+    display: inline;
+  }
+  
+  .note-content input[type="checkbox"] {
+    display: inline;
+    vertical-align: middle;
+    margin-right: 0.25rem;
+  }
+  
+  .note h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .note p {
+    margin-bottom: 1rem;
+  }
+  
+  .note-button {
+    margin-top: 1rem;
+    background-color: #3b82f6;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem; 
+    color: #ffffff;
+  
+  }
+  
+  .delete-note {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: transparent;
+    border: none;
+    color: #ff0000;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .edit-note {
+    background-color: #3b82f6;
+    border: none;
+    border-radius: 4px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+  }
+  
+  .tag-input {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+  
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 5px;
+  }
+  
+  .tag {
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+  
+  .delete-tag {
+    background-color: transparent;
+    border: none;
+    color: #999;
+    font-size: 14px;
+    margin-left: 5px;
+    cursor: pointer;
+  }
+  
+  .content-type {
+    margin-bottom: 10px;
+  }
+  
+  .slider-container {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .slider-option {
+    position: relative;
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    transition: color 0.3s ease;
+    z-index: 1;
+    //color: #000;  
+  
+  }
+  
+  .slider-label {
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .slider-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 33.33%; /* Make sure this matches the width of a single option */
+    background-color: transparent;
+    border-radius: 4px;
+    transition: transform 0.3s ease, background-color 0.3s ease; 
+  }
+  
+  .slider-container:hover .slider-background {
+    background-color: rgba(66, 133, 244, 0.2);
+  }
+  
+  .slider-option.active ~ .slider-background {
+    //color: black;
+    background-color: #4285f4 !important;
+  
+  }
+  .slider-option.active .slider-label {
+    color: white; /* Set selected text to white */
+  }
+  
+  .organization-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  @keyframes slideDownAndFade {
+    from {
+      opacity: 0;
+      transform: translateY(-2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-slideDownAndFade {
+    animation: slideDownAndFade 0.2s ease-out;
+  }
+  

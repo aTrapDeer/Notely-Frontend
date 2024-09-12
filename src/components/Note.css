@@ -1,0 +1,191 @@
+.note-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.note-line {
+    margin-bottom: 8px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    padding-left: 0;
+    width: 100%;
+}
+
+.checkbox {
+    margin-right: 8px;
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
+.checkbox-label {
+    flex: 1;
+    display: inline;
+    width: auto;
+    vertical-align: middle;
+}
+
+.checkbox-label.checked {
+    text-decoration: line-through;
+    color: #888;
+}
+
+/* Remove any Daisy UI specific classes */
+.note-content > div {
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  cursor: se-resize;
+  background-color: #ccc;
+}
+
+.note {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  overflow: auto;
+  min-width: 200px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: box-shadow 0.3s ease;
+}
+
+.note-highlight {
+  position: absolute;
+  background-color: rgba(173, 216, 230, 0.5); /* Light blue with 50% opacity */
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none; /* This allows clicks to pass through */
+  z-index: -1; /* This puts the highlight behind the content */
+}
+
+.note-highlight.active {
+  opacity: 1;
+}
+
+.note-highlight-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px; /* Increased from 10px */
+}
+
+.note-highlight-left {
+  top: 50px; /* Start below the top highlight */
+  left: 0;
+  bottom: 0;
+  width: 30px; /* Increased from 10px */
+}
+
+.note-highlight-right {
+  top: 50px; /* Start below the top highlight */
+  right: 0;
+  bottom: 0;
+  width: 30px; /* Increased from 10px */
+}
+
+.note-highlight-bottom {
+  bottom: 0;
+  left: 30px; /* Start after the left highlight */
+  right: 30px; /* End before the right highlight */
+  height: 30px; /* Increased from 10px */
+}
+
+.resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 25px;
+  height: 15px;
+  cursor: se-resize;
+  background-color: #ccc;
+  border-top-left-radius: 15px;
+}
+
+.edit-button {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* Increase specificity for Markdown styles */
+.note-content h1,
+.note-content h2,
+.note-content h3,
+.note-content h4,
+.note-content h5,
+.note-content h6 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+}
+
+.note-content h1 { font-size: 2em; }
+.note-content h2 { font-size: 1.5em; }
+.note-content h3 { font-size: 1.17em; }
+.note-content h4 { font-size: 1em; }
+.note-content h5 { font-size: 0.83em; }
+.note-content h6 { font-size: 0.67em; }
+
+.note-content p {
+    margin-bottom: 1em;
+}
+
+.note-content ul,
+.note-content ol {
+    margin-bottom: 1em;
+    padding-left: 2em;
+}
+
+.note-content li {
+    margin-bottom: 0.5em;
+}
+
+.note-content a {
+    color: #0000FF;
+    text-decoration: underline;
+}
+
+/* Increase specificity for code blocks */
+.note-content pre,
+.note-content pre code {
+  display: block;
+  background-color: #f0f0f0;
+  padding: 1em;
+  overflow-x: auto;
+  margin-bottom: 1em;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.note-content code {
+  background-color: #f0f0f0;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+/* Override any conflicting styles */
+.note-content pre,
+.note-content pre code,
+.note-content code {
+  font-size: 0.9em !important;
+  line-height: 1.4 !important;
+  color: #333 !important;
+}
+
+/* ... (rest of your existing styles) */

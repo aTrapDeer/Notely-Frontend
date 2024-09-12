@@ -1,0 +1,349 @@
+.landing-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e9e9ff 0%, #fdfdfe 100%); /* Darker shades */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.landing-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 2rem; /* Reduced top and bottom padding */
+}
+
+.landing-header {
+    text-align: center;
+    margin-bottom: 4rem; /* Reduced margin */
+}
+
+.landing-header h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, #6200ea, #b388ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.landing-header h2 {
+    font-size: 2rem;
+    color: #4a4a4a;
+    margin-bottom: 1.5rem;
+}
+
+.landing-header p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2.5rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.landing-button {
+    display: inline-block;
+    background: linear-gradient(45deg, #6200ea, #7c4dff);
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.landing-button:hover,
+.landing-button.primary:hover {
+    text-decoration: none;
+}
+
+.landing-button:hover,
+.landing-button.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    background: linear-gradient(45deg, #7c4dff, #6200ea);
+}
+
+.plan-section, .features-section {
+    margin-bottom: 5rem; /* Reduced margin */
+}
+
+h2 {
+    font-size: 2.5rem; /* Slightly larger */
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #4a4a4a;
+    font-weight: 700; /* Make it bolder */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* Add subtle shadow for emphasis */
+}
+
+.plan-section h2, .features-section h2 {
+    font-size: 3rem; /* Significantly larger */
+    font-weight: 800; /* Extra bold */
+    color: #6200ea; /* Primary color for emphasis */
+    text-transform: uppercase; /* Make it all caps for more impact */
+    letter-spacing: 1px; /* Spread out the letters slightly */
+    margin-bottom: 3rem; /* More space below */
+    position: relative; /* For adding decorative elements */
+    padding-bottom: 15px; /* Space for underline */
+}
+
+.plan-section h2::after, .features-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(45deg, #6200ea, #7c4dff);
+    border-radius: 2px;
+}
+
+.plan-cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem; /* Reduced gap */
+}
+
+.plan-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px; /* Slightly smaller radius */
+    padding: 2rem; /* Reduced padding */
+    flex: 1;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(98,0,234,0.1); /* Add a subtle border */
+}
+
+.plan-card h3 {
+    font-size: 2.2rem; /* Slightly larger */
+    margin-bottom: 1.5rem;
+    color: #6200ea;
+    font-weight: 700; /* Make it bolder */
+    text-shadow: 1px 1px 2px rgba(98,0,234,0.1); /* Add subtle shadow with primary color */
+}
+
+.plan-card p {
+    margin-bottom: 1.5rem;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.plan-card ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 2rem;
+}
+
+.plan-card li {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    position: relative;
+    font-size: 1.1rem;
+}
+
+.plan-card li::before {
+    content: "✓";
+    color: #6200ea;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+.price {
+    font-weight: 800; /* Make it extra bold */
+    font-size: 2rem; /* Slightly larger */
+    color: #6200ea;
+    text-shadow: 1px 1px 2px rgba(98,0,234,0.1); /* Add subtle shadow */
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem; /* Reduced gap */
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px; /* Slightly smaller radius */
+    padding: 1.5rem; /* Reduced padding */
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(98,0,234,0.1); /* Add a subtle border */
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-right: 1.5rem;
+}
+
+.feature-item h3 {
+    font-size: 1.7rem; /* Slightly larger */
+    margin-bottom: 1rem;
+    color: #6200ea;
+    font-weight: 700; /* Make it bolder */
+}
+
+.feature-item p {
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.landing-footer {
+    text-align: center;
+    padding-top: 3rem; /* Reduced padding */
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.landing-footer p {
+    margin-bottom: 2rem;
+    font-size: 1.2rem;
+    color: #4a4a4a;
+}
+
+@media (max-width: 768px) {
+    .landing-container {
+        padding: 1.5rem 1rem; /* Further reduced padding for mobile */
+    }
+
+    .landing-header h1 {
+        font-size: 2.5rem;
+    }
+
+    .landing-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .plan-cards {
+        flex-direction: column;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .plan-card, .feature-item {
+        padding: 2rem;
+    }
+
+    h2 {
+        font-size: 2rem;
+    }
+
+    .plan-card h3 {
+        font-size: 1.8rem;
+    }
+
+    .feature-item h3 {
+        font-size: 1.5rem;
+    }
+
+    .price {
+        font-size: 1.8rem;
+    }
+}
+
+.hero-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px; /* Slightly smaller radius */
+    padding: 2.5rem; /* Reduced padding */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-top: 1.5rem; /* Reduced margin */
+    text-align: center;
+}
+
+.hero-card h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #6200ea;
+    margin-bottom: 1.5rem;
+    text-shadow: 1px 1px 2px rgba(98,0,234,0.1);
+}
+
+.hero-card p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Update the landing-button styles */
+.landing-button {
+    display: inline-block;
+    background: linear-gradient(45deg, #6200ea, #7c4dff);
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.landing-button:hover,
+.landing-button.primary:hover {
+    text-decoration: none;
+}
+
+.landing-button:hover,
+.landing-button.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    background: linear-gradient(45deg, #7c4dff, #6200ea);
+}
+
+.community-section p {
+    max-width: 600px;
+    margin: 1rem auto 2rem;
+}
+
+    .hero-card {
+    padding: 2rem;
+    background-color: #f5f5f5;
+    margin: 1rem auto 2rem;
+}
+
+.landing-footer nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.landing-footer a {
+    color: #4a4a4a;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.landing-footer a:hover {
+    text-decoration: underline;
+}
+
+.landing-button.primary {
+    display: inline-block;
+    background: linear-gradient(45deg, #6200ea, #7c4dff);
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.landing-button.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    background: linear-gradient(45deg, #7c4dff, #6200ea);
+}
