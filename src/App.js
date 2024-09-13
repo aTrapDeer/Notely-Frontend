@@ -13,7 +13,7 @@ import NoteForm from './components/NoteForm';
 import NoteList from './components/NoteList';
 import DeleteConfirmation from './components/popups/DeleteConfirmation';
 import ReactDOM from 'react-dom';
-
+//New Push
 Amplify.configure(awsExports);
 
 function App({ signOut, user }) {
