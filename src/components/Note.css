@@ -70,9 +70,15 @@
   background-color: rgba(173, 216, 230, 0.5); /* Light blue with 50% opacity */
   transition: opacity 0.3s ease;
   opacity: 0;
-  pointer-events: none; /* This allows clicks to pass through */
-  z-index: -1; /* This puts the highlight behind the content */
+  pointer-events: none;
+  z-index: 2; 
+
 }
+.note-content-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
 
 .note-highlight.active {
   opacity: 1;
@@ -82,28 +88,28 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 50px; /* Increased from 10px */
+  height: 50px;
 }
 
 .note-highlight-left {
-  top: 50px; /* Start below the top highlight */
+  top: 50px;
   left: 0;
   bottom: 0;
-  width: 30px; /* Increased from 10px */
+  width: 30px;
 }
 
 .note-highlight-right {
-  top: 50px; /* Start below the top highlight */
+  top: 50px;
   right: 0;
   bottom: 0;
-  width: 30px; /* Increased from 10px */
+  width: 30px;
 }
 
 .note-highlight-bottom {
   bottom: 0;
-  left: 30px; /* Start after the left highlight */
-  right: 30px; /* End before the right highlight */
-  height: 30px; /* Increased from 10px */
+  left: 30px;
+  right: 30px;
+  height: 30px;
 }
 
 .resize-handle {
@@ -188,4 +194,12 @@
   color: #333 !important;
 }
 
-/* ... (rest of your existing styles) */
+.bottom-drag-handle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px; /* Adjust the height as needed */
+  cursor: grab;
+  background-color: transparent;
+}

@@ -142,25 +142,27 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
   const handleMouseDown = useCallback((event) => {
     if (!isEditing) {
       const { clientX, clientY } = event;
-      const { left, top, right, bottom, width, height } = noteRef.current.getBoundingClientRect();
+      const { left, top, right, bottom } = noteRef.current.getBoundingClientRect();
       const grabAreaWidth = 30; // Width of the grab area on the sides
       const grabAreaHeight = 50; // Height of the grab area at the top (including title)
-
-      const isInGrabArea = 
+  
+      const isInGrabArea =
         clientX - left < grabAreaWidth || // Left side
         right - clientX < grabAreaWidth || // Right side
         clientY - top < grabAreaHeight; // Top area (including title)
-
+  
       if (isInGrabArea) {
         event.preventDefault();
+        event.stopPropagation(); // **Add this line**
         setIsDragging(true);
-        setOffset({ 
-          x: (clientX - left) / zoomLevel, 
-          y: (clientY - top) / zoomLevel 
+        setOffset({
+          x: (clientX - left) / zoomLevel,
+          y: (clientY - top) / zoomLevel,
         });
       }
     }
   }, [isEditing, zoomLevel]);
+  
 
   const handleMouseMove = useCallback((event) => {
     if (isDragging && workspaceRef && workspaceRef.current) {
@@ -186,7 +188,9 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
     }
   }, [isDragging]);
 
-  const handleMouseEnter = useCallback((e) => {
+// Existing function
+const handleMouseMoveEdgeDetection = useCallback(
+  (e) => {
     if (!noteRef.current) return;
 
     const { clientX, clientY } = e;
@@ -194,22 +198,31 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
     const edgeThreshold = 30;
     const topThreshold = 50;
 
-    if (clientY - top < topThreshold) {
-      setActiveEdge('top');
-    } else if (bottom - clientY < edgeThreshold) {
-      setActiveEdge('bottom');
-    } else if (clientX - left < edgeThreshold) {
-      setActiveEdge('left');
-    } else if (right - clientX < edgeThreshold) {
-      setActiveEdge('right');
-    } else {
-      setActiveEdge(null);
-    }
-  }, []);
+    let newActiveEdge = null;
 
-  const handleMouseLeave = useCallback(() => {
-    setActiveEdge(null);
-  }, []);
+    if (clientY - top < topThreshold) {
+      newActiveEdge = 'top';
+    } else if (bottom - clientY < edgeThreshold) {
+      newActiveEdge = 'bottom';
+    } else if (clientX - left < edgeThreshold) {
+      newActiveEdge = 'left';
+    } else if (right - clientX < edgeThreshold) {
+      newActiveEdge = 'right';
+    }
+
+    if (newActiveEdge !== activeEdge) {
+      setActiveEdge(newActiveEdge);
+      console.log('Active Edge:', newActiveEdge);
+    }
+  },
+  [activeEdge]
+);
+
+
+// **Add this function below**
+const handleMouseLeave = useCallback(() => {
+  setActiveEdge(null);
+}, []);
 
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove);
@@ -273,6 +286,7 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
     setEditedNote({...editedNote, tags: updatedTags});
   };
 
+
   const handleDeleteClick = (e) => {
     e.stopPropagation();
     onDeleteClick(note.id); 
@@ -286,6 +300,7 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
     setSize({ width: note.width || 300, height: note.height || 390 });
     setPosition({ x: note.positionX || 0, y: note.positionY || 0 });
   }, [note]);
+
   return (
     <div
       ref={noteRef}
@@ -294,7 +309,11 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
         position: 'absolute',
         left: `${position.x}px`,
         top: `${position.y}px`,
-        cursor: isDragging ? 'grabbing' : 'default',
+        cursor: isDragging
+            ? 'grabbing'
+            : activeEdge
+              ? 'grab'
+              : 'default',
         transform: isDragging ? 'rotate(5deg) scale(1.05)' : 'none',
         transition: isDragging ? 'none' : 'transform 0.2s ease-out',
         zIndex: isDragging ? 998 : 'auto', // Ensure this is lower than TopBar's z-index
@@ -310,7 +329,7 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
         borderRadius: '5px',
       }}
       onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseEnter}
+      onMouseMove={handleMouseMoveEdgeDetection}
       onMouseLeave={handleMouseLeave}
     >
       <div className={`note-highlight note-highlight-top ${activeEdge === 'top' ? 'active' : ''}`} />
@@ -323,6 +342,23 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
         className="resize-handle"
         onMouseDown={handleResizeMouseDown}
       />  
+        <div
+          className="bottom-drag-handle"
+          onMouseDown={(e) => {
+            e.stopPropagation(); // This line already exists
+            if (!isEditing) {
+              const { clientX, clientY } = e;
+              const { left, top } = noteRef.current.getBoundingClientRect();
+
+              setIsDragging(true);
+              setOffset({
+                x: (clientX - left) / zoomLevel,
+                y: (clientY - top) / zoomLevel,
+              });
+            }
+          }}
+        />
+
       {isEditing ? (
         <form onSubmit={handleEditSubmit} className="note-form">
           <input

@@ -58,3 +58,6 @@ Python/venv/
 Python/flask_session
 *.db
 Python/*
+
+# Ignore shell scripts
+*.sh
