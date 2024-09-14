@@ -18,25 +18,25 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        setisSpacePressed(true);
-      }
+        if (e.code === 'Space' && !isTypingInInput(e)) {
+            e.preventDefault();
+            setisSpacePressed(true);
+        }
     };
     const handleKeyUp = (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        setisSpacePressed(false);
-        setIsDragging(false);
-      }
+        if (e.code === 'Space' && !isTypingInInput(e)) {
+            e.preventDefault();
+            setisSpacePressed(false);
+            setIsDragging(false);
+        }
     };
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+}, []);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -70,6 +70,12 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
     }
   }, [isSpacePressed]);
   
+
+  const isTypingInInput = (e) => {
+    const tagName = e.target.tagName.toLowerCase();
+    const isContentEditable = e.target.isContentEditable;
+    return tagName === 'input' || tagName === 'textarea' || isContentEditable;
+};
 
   // Touch feedback for touch devices
   const handleTouchStart = useCallback(

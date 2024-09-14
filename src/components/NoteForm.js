@@ -239,6 +239,8 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                     className="border-2 border-blue-200 p-2 rounded"
                     onChange={handleChange}
                     value={state.title}
+                    onKeyDown={(e) => e.stopPropagation()} // Add this line
+
                 />
                 
                 <div className="tag-input">

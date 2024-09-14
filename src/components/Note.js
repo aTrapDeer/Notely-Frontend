@@ -400,6 +400,8 @@ const handleMouseLeave = useCallback(() => {
             onChange={handleEditChange}
             placeholder="Take a note..."
             className="note-textarea"
+            onKeyDown={(e) => e.stopPropagation()}
+
           />
           <div>
             <label>
