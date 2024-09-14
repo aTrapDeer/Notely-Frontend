@@ -100,7 +100,7 @@ function App({ signOut, user }) {
       console.error('User information is missing.');
       return;
     }
-
+ 
     axios.post(`${process.env.REACT_APP_BACKEND_URL}/delete_note`, { 
       userId: userDetails['USER#'],
       noteId: noteId // Remove 'NOTE#' prefix if it's not needed
