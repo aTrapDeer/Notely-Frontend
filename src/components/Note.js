@@ -1,16 +1,25 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useContext } from 'react';
 import ReactMarkdown from 'react-markdown';
+import WorkspaceContext from './WorkspaceContext'; 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { debounce } from 'lodash';
-import './Note.css'
+import './Note.css';
 
-const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
+const Note = ({ 
+  note, 
+  onDeleteClick, 
+  onEdit, 
+  workspaceRef, 
+  zoomLevel
+}) => {
+  const { setDisableWorkspaceDrag } = useContext(WorkspaceContext);
   const noteRef = useRef(null);
   const editButtonRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [editedNote, setEditedNote] = useState(note);
   const [isEditing, setIsEditing] = useState(false);
+  
   const [size, setSize] = useState({ width: note.width || 300, height: note.height || 390 });
   const [isResizing, setIsResizing] = useState(false);
   const resizeRef = useRef(null);
@@ -31,30 +40,49 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
   // Touch event handlers
   const handleTouchStart = useCallback((e) => {
     if (!isEditing && e.touches.length === 1) {
-      const { clientX, clientY } = e.touches[0];
+      const touch = e.touches[0];
+      const { clientX, clientY } = touch;
       const { left, top, right, bottom } = noteRef.current.getBoundingClientRect();
       const grabAreaWidth = 30;
       const grabAreaHeight = 50;
-
+  
+      // Define the resize handle area
+      const resizeHandleWidth = 25;
+      const resizeHandleHeight = 25; // Match CSS height
+      const isInResizeHandle = 
+        clientX >= right - resizeHandleWidth && 
+        clientY >= bottom - resizeHandleHeight;
+  
+      if (isInResizeHandle) {
+        // Do not initiate dragging if in resize handle
+        return;
+      }
+  
       const isInGrabArea =
         clientX - left < grabAreaWidth || 
         right - clientX < grabAreaWidth || 
         clientY - top < grabAreaHeight;
-
+  
       if (isInGrabArea) {
         e.preventDefault();
+        e.stopPropagation();
         setIsDragging(true);
         setOffset({
           x: (clientX - left) / zoomLevel,
           y: (clientY - top) / zoomLevel,
         });
+        setDisableWorkspaceDrag(true); 
       }
     }
-  }, [isEditing, zoomLevel]);
+  }, [isEditing, zoomLevel, setDisableWorkspaceDrag]);
 
   const handleTouchMove = useCallback((e) => {
     if (isDragging && e.touches.length === 1 && workspaceRef && workspaceRef.current) {
-      const { clientX, clientY } = e.touches[0];
+      // Existing dragging logic
+      e.preventDefault();
+      e.stopPropagation();
+      const touch = e.touches[0];
+      const { clientX, clientY } = touch;
       const { left, top } = workspaceRef.current.getBoundingClientRect();
       const workspaceX = (clientX - left) / zoomLevel;
       const workspaceY = (clientY - top) / zoomLevel;
@@ -68,19 +96,49 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
       });
       debouncedEdit({ ...note, positionX: newPosition.x, positionY: newPosition.y });
     }
-  }, [isDragging, workspaceRef, zoomLevel, offset, note, debouncedEdit]);
+  
+    if (isResizing && e.touches.length === 1 && workspaceRef && workspaceRef.current) {
+      // Resizing logic
+      e.preventDefault();
+      e.stopPropagation();
+      const touch = e.touches[0];
+      const { clientX, clientY } = touch;
+      const { left, top } = workspaceRef.current.getBoundingClientRect();
+      const newWidth = (clientX - left) / zoomLevel - position.x;
+      const newHeight = (clientY - top) / zoomLevel - position.y;
+      
+      const minWidth = editButtonRef.current ? editButtonRef.current.offsetWidth + 20 : 100;
+      const minHeight = editButtonRef.current ? editButtonRef.current.offsetHeight + 20 : 50;
+  
+      setSize({ 
+        width: Math.max(minWidth, newWidth), 
+        height: Math.max(minHeight, newHeight) 
+      });
+    }
+  }, [isDragging, isResizing, workspaceRef, zoomLevel, offset, position, note, debouncedEdit, editButtonRef]);
 
   const handleTouchEnd = useCallback(() => {
     if (isDragging) {
       setIsDragging(false);
+      setDisableWorkspaceDrag(false); 
     }
-  }, [isDragging]);
+    if (isResizing) {
+      setIsResizing(false);
+      setDisableWorkspaceDrag(false); 
+      onEdit({ ...note, width: size.width, height: size.height });
+    }
+  }, [isDragging, isResizing, setDisableWorkspaceDrag, onEdit, note, size]);
 
   const handleResizeMouseDown = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsResizing(true);
-  }, []);
+    setOffset({
+      x: e.clientX - noteRef.current.getBoundingClientRect().left,
+      y: e.clientY - noteRef.current.getBoundingClientRect().top,
+    });
+    setDisableWorkspaceDrag(true);
+  }, [setDisableWorkspaceDrag]);
 
   const handleResizeMouseMove = useCallback((e) => {
     if (isResizing && workspaceRef && workspaceRef.current) {
@@ -98,15 +156,15 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
         height: Math.max(minHeight, newHeight) 
       });
     }
-  }, [isResizing, workspaceRef, zoomLevel, position]);
+  }, [isResizing, workspaceRef, zoomLevel, position, editButtonRef]);
 
   const handleResizeMouseUp = useCallback(() => {
     if (isResizing) {
       setIsResizing(false);
+      setDisableWorkspaceDrag(false);
       onEdit({ ...note, width: size.width, height: size.height });
     }
-  }, [isResizing, size, note, onEdit]);
-
+  }, [isResizing, size, note, onEdit, setDisableWorkspaceDrag]);
 
   const renderContent = (content, handleCheckboxChange) => {
     const renderCheckbox = (props) => {
@@ -192,26 +250,26 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
     if (!isEditing) {
       const { clientX, clientY } = event;
       const { left, top, right, bottom } = noteRef.current.getBoundingClientRect();
-      const grabAreaWidth = 30; // Width of the grab area on the sides
-      const grabAreaHeight = 50; // Height of the grab area at the top (including title)
-  
+      const grabAreaWidth = 30; 
+      const grabAreaHeight = 50; 
+
       const isInGrabArea =
-        clientX - left < grabAreaWidth || // Left side
+        clientX - left < grabAreaWidth || 
         right - clientX < grabAreaWidth || // Right side
-        clientY - top < grabAreaHeight; // Top area (including title)
-  
+        clientY - top < grabAreaHeight; 
+
       if (isInGrabArea) {
         event.preventDefault();
-        event.stopPropagation(); // **Add this line**
+        event.stopPropagation(); 
         setIsDragging(true);
         setOffset({
           x: (clientX - left) / zoomLevel,
           y: (clientY - top) / zoomLevel,
         });
+        setDisableWorkspaceDrag(true);
       }
     }
-  }, [isEditing, zoomLevel]);
-  
+  }, [isEditing, zoomLevel, setDisableWorkspaceDrag]);
 
   const handleMouseMove = useCallback((event) => {
     if (isDragging && workspaceRef && workspaceRef.current) {
@@ -234,75 +292,80 @@ const Note = ({ note, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => {
   const handleMouseUp = useCallback(() => {
     if (isDragging) {
       setIsDragging(false);
+      setDisableWorkspaceDrag(false);
     }
-  }, [isDragging]);
+  }, [isDragging, setDisableWorkspaceDrag]);
 
-// Existing function
-const handleMouseMoveEdgeDetection = useCallback(
-  (e) => {
-    if (!noteRef.current) return;
+  // Edge detection for cursor changes
+  const handleMouseMoveEdgeDetection = useCallback(
+    (e) => {
+      if (!noteRef.current) return;
 
-    const { clientX, clientY } = e;
-    const { left, top, right, bottom } = noteRef.current.getBoundingClientRect();
-    const edgeThreshold = 30;
-    const topThreshold = 50;
+      const { clientX, clientY } = e;
+      const { left, top, right, bottom } = noteRef.current.getBoundingClientRect();
+      const edgeThreshold = 30;
+      const topThreshold = 50;
 
-    let newActiveEdge = null;
+      let newActiveEdge = null;
 
-    if (clientY - top < topThreshold) {
-      newActiveEdge = 'top';
-    } else if (bottom - clientY < edgeThreshold) {
-      newActiveEdge = 'bottom';
-    } else if (clientX - left < edgeThreshold) {
-      newActiveEdge = 'left';
-    } else if (right - clientX < edgeThreshold) {
-      newActiveEdge = 'right';
-    }
+      if (clientY - top < topThreshold) {
+        newActiveEdge = 'top';
+      } else if (bottom - clientY < edgeThreshold) {
+        newActiveEdge = 'bottom';
+      } else if (clientX - left < edgeThreshold) {
+        newActiveEdge = 'left';
+      } else if (right - clientX < edgeThreshold) {
+        newActiveEdge = 'right';
+      }
 
-    if (newActiveEdge !== activeEdge) {
-      setActiveEdge(newActiveEdge);
-      console.log('Active Edge:', newActiveEdge);
-    }
-  },
-  [activeEdge]
-);
+      if (newActiveEdge !== activeEdge) {
+        setActiveEdge(newActiveEdge);
+        console.log('Active Edge:', newActiveEdge);
+      }
+    },
+    [activeEdge]
+  );
 
+  // Reset active edge when mouse leaves the note
+  const handleMouseLeave = useCallback(() => {
+    setActiveEdge(null);
+  }, []);
 
-// **Add this function below**
-const handleMouseLeave = useCallback(() => {
-  setActiveEdge(null);
-}, []);
-
+  // Unified event listeners for mouse and touch events
   useEffect(() => {
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousemove', handleResizeMouseMove);
-    document.addEventListener('mouseup', handleResizeMouseUp);
-    document.addEventListener('touchmove', handleTouchMove); 
+    const handleGlobalMouseMove = (e) => {
+      if (isResizing) {
+        handleResizeMouseMove(e);
+      } else {
+        handleMouseMove(e);
+      }
+    };
+
+    const handleGlobalMouseUp = (e) => {
+      if (isResizing) {
+        handleResizeMouseUp(e);
+      } else {
+        handleMouseUp(e);
+      }
+    };
+    
+    document.addEventListener('mousemove', handleGlobalMouseMove);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false }); 
     document.addEventListener('touchend', handleTouchEnd);
+
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('mousemove', handleResizeMouseMove);
-      document.removeEventListener('mouseup', handleResizeMouseUp);
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
       document.removeEventListener('touchmove', handleTouchMove); 
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [handleMouseMove, handleMouseUp, handleResizeMouseMove, handleResizeMouseUp, handleTouchMove, handleTouchEnd]);
+  }, [handleMouseMove, handleMouseUp, handleResizeMouseMove, handleResizeMouseUp, handleTouchMove, handleTouchEnd, isResizing]);
 
   useEffect(() => {
     setSize({ width: note.width || 300, height: note.height || 390 });
     setPosition({ x: note.positionX || 0, y: note.positionY || 0 });
   }, [note]);
-
-  useEffect(() => {
-    document.addEventListener('mousemove', handleResizeMouseMove);
-    document.addEventListener('mouseup', handleResizeMouseUp);
-    return () => {
-      document.removeEventListener('mousemove', handleResizeMouseMove);
-      document.removeEventListener('mouseup', handleResizeMouseUp);
-    };
-  }, [handleResizeMouseMove, handleResizeMouseUp]);
 
   const handleContentClick = (e) => {
     e.stopPropagation();
@@ -310,15 +373,15 @@ const handleMouseLeave = useCallback(() => {
 
   const handleEditClick = () => {
     setIsEditing(true);
-    setEditedNote({...note});
+    setEditedNote({ ...note });
   };
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     if (name === 'tags') {
-      setEditedNote({...editedNote, [name]: value.split(',').map(tag => tag.trim())});
+      setEditedNote({ ...editedNote, [name]: value.split(',').map(tag => tag.trim()) });
     } else {
-      setEditedNote({...editedNote, [name]: value});
+      setEditedNote({ ...editedNote, [name]: value });
     }
   };
 
@@ -336,9 +399,8 @@ const handleMouseLeave = useCallback(() => {
 
   const handleTagDelete = (index) => {
     const updatedTags = editedNote.tags.filter((_, i) => i !== index);
-    setEditedNote({...editedNote, tags: updatedTags});
+    setEditedNote({ ...editedNote, tags: updatedTags });
   };
-
 
   const handleDeleteClick = (e) => {
     e.stopPropagation();
@@ -348,11 +410,6 @@ const handleMouseLeave = useCallback(() => {
   const renderMarkdown = (content) => {
     return content.replace(/- \[ \]/g, '☐').replace(/- \[x\]/g, '☑');
   };
-
-  useEffect(() => {
-    setSize({ width: note.width || 300, height: note.height || 390 });
-    setPosition({ x: note.positionX || 0, y: note.positionY || 0 });
-  }, [note]);
 
   return (
     <div
@@ -373,7 +430,7 @@ const handleMouseLeave = useCallback(() => {
         minWidth: '350px',
         maxWidth: '1000px',
         transformOrigin: 'top left',
-        minHeight: '390',
+        minHeight: '390px',
         width: `${size.width}px`,
         height: `${size.height}px`,
         backgroundColor: 'white',
@@ -391,27 +448,57 @@ const handleMouseLeave = useCallback(() => {
       <div className={`note-highlight note-highlight-right ${activeEdge === 'right' ? 'active' : ''}`} />
       <div className={`note-highlight note-highlight-bottom ${activeEdge === 'bottom' ? 'active' : ''}`} />
 
+      {/* Bottom Drag Handle */}
+      <div
+        className="bottom-drag-handle"
+        onMouseDown={(e) => {
+          e.stopPropagation(); // Prevent triggering parent handlers
+          if (!isEditing) {
+            const { clientX, clientY } = e;
+            const { left, top } = noteRef.current.getBoundingClientRect();
+
+            setIsDragging(true);
+            setOffset({
+              x: (clientX - left) / zoomLevel,
+              y: (clientY - top) / zoomLevel,
+            });
+            setDisableWorkspaceDrag(true);
+          }
+        }}
+        onTouchStart={(e) => {
+          e.stopPropagation(); // Prevent triggering parent handlers
+          if (!isEditing && e.touches.length === 1) {
+            const touch = e.touches[0];
+            const { clientX, clientY } = touch;
+            const { left, top } = noteRef.current.getBoundingClientRect();
+
+            setIsDragging(true);
+            setOffset({
+              x: (clientX - left) / zoomLevel,
+              y: (clientY - top) / zoomLevel,
+            });
+            setDisableWorkspaceDrag(true);
+          }
+        }}
+      />
+
+      {/* Resize Handle */}
       <div
         ref={resizeRef}
         className="resize-handle"
         onMouseDown={handleResizeMouseDown}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsResizing(true);
+          const touch = e.touches[0];
+          setOffset({
+            x: (touch.clientX - noteRef.current.getBoundingClientRect().left) / zoomLevel,
+            y: (touch.clientY - noteRef.current.getBoundingClientRect().top) / zoomLevel,
+          });
+          setDisableWorkspaceDrag(true);
+        }}
       />  
-        <div
-          className="bottom-drag-handle"
-          onMouseDown={(e) => {
-            e.stopPropagation(); // This line already exists
-            if (!isEditing) {
-              const { clientX, clientY } = e;
-              const { left, top } = noteRef.current.getBoundingClientRect();
-
-              setIsDragging(true);
-              setOffset({
-                x: (clientX - left) / zoomLevel,
-                y: (clientY - top) / zoomLevel,
-              });
-            }
-          }}
-        />
 
       {isEditing ? (
         <form onSubmit={handleEditSubmit} className="note-form">
@@ -455,7 +542,6 @@ const handleMouseLeave = useCallback(() => {
             placeholder="Take a note..."
             className="note-textarea"
             onKeyDown={(e) => e.stopPropagation()}
-
           />
           <div>
             <label>
@@ -473,16 +559,16 @@ const handleMouseLeave = useCallback(() => {
                 type="radio"
                 name="visibility"
                 value="organization"
-                checked={note.visibility === 'organization'}
+                checked={editedNote.visibility === 'organization'}
                 onChange={handleEditChange}
               />
               Organization
             </label>
-            {note.visibility === 'organization' && (
+            {editedNote.visibility === 'organization' && (
               <input
                 type="text"
                 name="organization"
-                value={note.organization}
+                value={editedNote.organization}
                 onChange={handleEditChange}
                 placeholder="Organization"
                 className="note-input"
@@ -493,7 +579,7 @@ const handleMouseLeave = useCallback(() => {
                 type="radio"
                 name="visibility"
                 value="private"
-                checked={note.visibility === 'private'}
+                checked={editedNote.visibility === 'private'}
                 onChange={handleEditChange}
               />
               Private
@@ -516,7 +602,7 @@ const handleMouseLeave = useCallback(() => {
           <h1 className="note-title">{note.title}</h1>
           <div className="note-content" onClick={handleContentClick}>
             {renderContent(note.content, handleCheckboxChange)}
-            </div>
+          </div>
           <p className="note-tags">{note.tags.join(', ')}</p>
           <p className="note-visibility">Visibility: {note.privacyType}</p>
           <button className="edit-note" onClick={handleEditClick} onMouseDown={(e) => e.stopPropagation()}>

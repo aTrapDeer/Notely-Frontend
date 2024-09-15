@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback, forwardRef } from 'react';
 import './Workspace.css';
+import WorkspaceContext from './WorkspaceContext'; // Import the context
+
 
 const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isSpacePressed, setisSpacePressed] = useState(false);
+  const [disableWorkspaceDrag, setDisableWorkspaceDrag] = useState(false);
   const [workspaceTransform, setInternalWorkspaceTransform] = useState({ x: 0, y: -100, scale: 1 });
   const containerRef = useRef(null);
   const lastMousePosRef = useRef({ x: 0, y: 0 });
@@ -45,7 +48,7 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
   }, [isDragging, isSpacePressed]);
 
   const handleMouseMove = useCallback((e) => {
-    if (isDragging) {
+    if (isDragging && !disableWorkspaceDrag) {
       const deltaX = e.clientX - lastMousePosRef.current.x;
       const deltaY = e.clientY - lastMousePosRef.current.y;
       requestAnimationFrame(() => {
@@ -57,7 +60,7 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
       });
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
     }
-  }, [isDragging, updateTransform]);
+  }, [isDragging, updateTransform, disableWorkspaceDrag]);
 
   const handleMouseDown = useCallback((e) => {
     if (isSpacePressed) {
@@ -106,7 +109,7 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
     (e) => {
       e.preventDefault();
 
-      if (e.touches.length === 1 && isDragging) {
+      if (e.touches.length === 1 && isDragging && !disableWorkspaceDrag) {
         // Single touch - continue dragging
         const deltaX = e.touches[0].clientX - lastMousePosRef.current.x;
         const deltaY = e.touches[0].clientY - lastMousePosRef.current.y;
@@ -149,7 +152,7 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
         });
       }
     },
-    [isDragging, updateTransform]
+    [isDragging, updateTransform, disableWorkspaceDrag]
   );
 
   const handleTouchEnd = useCallback((e) => {
@@ -191,19 +194,20 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
   }, [isSpacePressed, updateTransform]);
 
   return (
-    <div 
-      ref={containerRef}
-      className="workspace-container h-full w-full overflow-hidden"
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      onWheel={handleWheel}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchCancel}
-    >
+    <WorkspaceContext.Provider value={{ setDisableWorkspaceDrag }}>
+      <div 
+        ref={containerRef}
+        className="workspace-container h-full w-full overflow-hidden"
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
+      >
       <div
         ref={ref}
         className="workspace min-h-full flex flex-col items-center pt-4" 
@@ -212,9 +216,12 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
           transformOrigin: '0 0',
         }}
       >
-        {children}
+      {children}
+
       </div>
     </div>
+    </WorkspaceContext.Provider>
+
   );
 });
 
