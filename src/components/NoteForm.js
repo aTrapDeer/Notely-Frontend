@@ -1,3 +1,4 @@
+// NoteForm.js
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
@@ -120,7 +121,9 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
 
         // Update slider-background style
         const sliderBackground = document.querySelector('.slider-background');
-        sliderBackground.style.transform = `translateX(${targetPosition}%)`;
+        if (sliderBackground) {
+            sliderBackground.style.transform = `translateX(${targetPosition}%)`;
+        }
     };
 
     const handleEditorChange = ({ text }) => {
@@ -149,7 +152,9 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
 
         if (updatedText !== text) {
             setTimeout(() => {
-                editorRef.current.setText(updatedText);
+                if (editorRef.current) {
+                    editorRef.current.setText(updatedText);
+                }
             }, 0);
         }
         
@@ -157,9 +162,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
         const words = lastLine.split(' ');
         const lastWord = words[words.length - 1];
 
-        if (lastWord === '/') {
-            setShowOptionsWindow(true);
-        } else if (lastWord.startsWith('/') && lastWord !== '/todo') {
+        if (lastWord === '/' || (lastWord.startsWith('/') && lastWord !== '/todo')) {
             setShowOptionsWindow(true);
         } else {
             setShowOptionsWindow(false);
@@ -184,16 +187,27 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
             case 'checkbox':
             case 'todo':
                 if (lastWord.startsWith('/')) {
-                    words[words.length - 1] = '- [ ] ';
+                    words[words.length - 1] = '- [ ]';
                     lines[lines.length - 1] = words.join(' ');
                     updatedText = lines.join('\n');
                 }
                 break;
-            // Add more cases for other options
+            // Add more cases for other options as needed
+            case 'heading':
+                if (lastWord.startsWith('/')) {
+                    words[words.length - 1] = '# ';
+                    lines[lines.length - 1] = words.join(' ');
+                    updatedText = lines.join('\n');
+                }
+                break;
+            default:
+                break;
         }
         setNoteText(updatedText);
         setShowOptionsWindow(false);
-        editorRef.current.setText(updatedText);
+        if (editorRef.current) {
+            editorRef.current.setText(updatedText);
+        }
     };
 
     const handleSubmit = (e) => {
@@ -269,6 +283,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                                     type="button"
                                     className="delete-tag ml-2 text-red-500"
                                     onClick={() => handleTagDelete(index)}
+                                    aria-label={`Delete tag ${tag}`}
                                 >
                                     &times;
                                 </button>
@@ -277,13 +292,12 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                     </div>
                 </div>
 
+                {/* Render OptionsWindow Only Once */}
                 {showOptionsWindow && (
                     <OptionsWindow
-                        onSelect={(option) => {
-                            const updatedNoteContent = noteText.replace('@/', `@/${option}`);
-                            setNoteText(updatedNoteContent);
-                            setShowOptionsWindow(false);
-                        }}
+                        onSelect={handleOptionSelect}
+                        onClose={() => setShowOptionsWindow(false)}
+                        showOptionsWindow={showOptionsWindow}
                     />
                 )}
 
@@ -311,12 +325,6 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                             </ul>
                         </div>
                     )}
-                    {showOptionsWindow && (
-                        <OptionsWindow
-                        onSelect={handleOptionSelect}
-                        showOptionsWindow={showOptionsWindow}
-                        />
-                    )}
                 </div>
                 
                 <div className="content-type">
@@ -324,18 +332,33 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                         <div
                             className={`slider-option ${state.visibility === 'global' ? 'active' : ''}`}
                             onClick={() => handleVisibilityChange('global')}
+                            onTouchStart={(e) => {
+                                e.stopPropagation();
+                                handleVisibilityChange('global');
+                            }}
+                            aria-label="Set visibility to Global (Public)"
                         >
                             <span className="slider-label">Global (Public)</span>
                         </div>
                         <div
                             className={`slider-option ${state.visibility === 'organization' ? 'active' : ''}`}
                             onClick={() => handleVisibilityChange('organization')}
+                            onTouchStart={(e) => {
+                                e.stopPropagation();
+                                handleVisibilityChange('organization');
+                            }}
+                            aria-label="Set visibility to Organization"
                         >
                             <span className="slider-label">Organization</span>
                         </div>
                         <div
                             className={`slider-option ${state.visibility === 'private' ? 'active' : ''}`}
                             onClick={() => handleVisibilityChange('private')}
+                            onTouchStart={(e) => {
+                                e.stopPropagation();
+                                handleVisibilityChange('private');
+                            }}
+                            aria-label="Set visibility to Private"
                         >
                             <span className="slider-label">Private</span>
                         </div>
@@ -349,6 +372,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                             className="organization-input"
                             onChange={handleChange}
                             value={state.organization}
+                            onKeyDown={(e) => e.stopPropagation()} // Prevent workspace interactions
                         />
                     )}
                 </div>

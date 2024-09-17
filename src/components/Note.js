@@ -1,5 +1,6 @@
 // Note.js
 import React, { useRef, useState, useEffect, useCallback, useContext, createPortal } from 'react';
+import ReactDOM from 'react-dom';
 import ReactMarkdown from 'react-markdown';
 import WorkspaceContext from './WorkspaceContext'; 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -245,7 +246,7 @@ const Note = ({
       const isChecked = line.startsWith('[x]');
       const label = line.slice(3).trim();
       const index = node.position.start.line - 1; // Markdown lines are 1-indexed
-
+    
       return (
         <div className="checkbox-item">
           <input
@@ -253,8 +254,16 @@ const Note = ({
             checked={isChecked}
             onChange={() => handleCheckboxChange(index)}
             className="checkbox"
+            onTouchStart={(e) => e.stopPropagation()} // Prevent touch events from bubbling up
+            onClick={(e) => e.stopPropagation()} // Prevent click events from bubbling up
+            onPointerDown={(e) => e.stopPropagation()} // For pointer events
           />
-          <span className={isChecked ? 'checkbox-label checked' : 'checkbox-label'}>
+          <span
+            className={isChecked ? 'checkbox-label checked' : 'checkbox-label'}
+            onTouchStart={(e) => e.stopPropagation()} // Prevent touch events from bubbling up
+            onClick={(e) => e.stopPropagation()} // Prevent click events from bubbling up
+            onPointerDown={(e) => e.stopPropagation()} // For pointer events
+          >
             {label}
           </span>
         </div>
@@ -571,33 +580,184 @@ useEffect(() => {
     return content.replace(/- \[ \]/g, '☐').replace(/- \[x\]/g, '☑');
   };
 
-  return (
+// Function to render the maximized note via Portal
+const MaximizedNote = () => {
+  return ReactDOM.createPortal(
+    <div className="note maximized">
+      {/* Header Buttons */}
+      <div className="note-header-buttons">
+        <button 
+          className="maximize-button" 
+          onClick={toggleMaximize}
+          aria-label={isMaximized ? 'Minimize Note' : 'Maximize Note'}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+          {isMaximized ? <FaCompress /> : <FaExpand />}
+        </button>
+
+        <button 
+          className="delete-note" 
+          onClick={handleDeleteClick}
+          aria-label="Delete Note"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+          &times;
+        </button>
+      </div>
+
+      {isEditing ? (
+        <form onSubmit={handleSubmit} className="note-edit-form">
+          {/* Edit Form Header */}
+          <div className="edit-form-header">
+            <input
+              type="text"
+              name="title"
+              value={editedNote.title}
+              onChange={handleEditChange}
+              placeholder="Title"
+              className="title-edit-input"
+              required
+            />
+          </div>
+
+          {/* Edit Form Body */}
+          <div className="edit-form-body">
+            {/* Tags Edit Input */}
+            <div className="tag-edit-input">
+              <input
+                type="text"
+                name="tags"
+                value={editedNote.tags.join(', ')}
+                onChange={handleEditChange}
+                placeholder="Tags (comma-separated)"
+                className="tags-edit-input"
+              />
+              <div className="tag-list">
+                {editedNote.tags.map((tag, index) => (
+                  <span key={index} className="tag-edit">
+                    {tag}
+                    <button
+                      type="button"
+                      className="delete-tag-edit"
+                      onClick={() => handleTagDelete(index)}
+                      aria-label={`Delete tag ${tag}`}
+                    >
+                      &times;
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Edit Textarea */}
+            <textarea
+              name="content"
+              value={editedNote.content}
+              onChange={handleEditChange}
+              placeholder="Take a note..."
+              className="note-edit-textarea"
+              required
+              onKeyDown={(e) => e.stopPropagation()}
+            />
+
+            {/* Edit Form Footer: Privacy Options */}
+            <div className="edit-form-footer">
+              <div className="slider-container">
+                <div
+                  className={`slider-option ${editedNote.privacyType === 'global' ? 'active' : ''}`}
+                  onClick={() => handleVisibilityChange('global')}
+                >
+                  <span className="slider-label">Global (Public)</span>
+                </div>
+                <div
+                  className={`slider-option ${editedNote.privacyType === 'organization' ? 'active' : ''}`}
+                  onClick={() => handleVisibilityChange('organization')}
+                >
+                  <span className="slider-label">Organization</span>
+                </div>
+                <div
+                  className={`slider-option ${editedNote.privacyType === 'private' ? 'active' : ''}`}
+                  onClick={() => handleVisibilityChange('private')}
+                >
+                  <span className="slider-label">Private</span>
+                </div>
+                <div className="slider-background" style={{ transform: `translateX(${getSliderPosition()}%)` }}></div>
+              </div>
+              {editedNote.privacyType === 'organization' && (
+                <input
+                  type="text"
+                  name="organization"
+                  value={editedNote.organization}
+                  onChange={handleEditChange}
+                  placeholder="Organization"
+                  className="organization-edit-input"
+                  required
+                />
+              )}
+            </div>
+            <div className="edit-buttons">
+              <button type="button" className="edit-cancel-button" onClick={handleEditCancel}>
+                Cancel
+              </button>
+              <button type="submit" className="edit-save-button">
+                Save
+              </button>
+            </div>
+          </div>
+        </form>
+      ) : (
+        <>
+          <h1 className="note-title">{note.title}</h1>
+          <div className="note-content" onClick={handleContentClick}>
+            {renderContent(note.content, handleCheckboxChange)}
+          </div>
+          <p className="note-tags">{note.tags.join(', ')}</p>
+          <p className="note-visibility">Visibility: {note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}</p>
+          <button 
+            className="edit-note" 
+            onClick={handleEditClick} 
+            onMouseDown={(e) => e.stopPropagation()}
+            aria-label="Edit Note"
+          >
+            Edit Note
+          </button>
+        </>
+      )}
+    </div>,
+    document.body
+  );
+};
+
+return (
+  <>
     <div
       ref={noteRef}
       className={`note ${isMaximized ? 'maximized' : ''}`}
       style={{
-        position: isMaximized ? 'fixed' : 'absolute',
-        left: isMaximized ? '50%' : `${position.x}px`,
-        top: isMaximized ? '50%' : `${position.y}px`,
-        width: isMaximized ? '90%' : `${size.width}px`,
-        height: isMaximized ? '90%' : `${size.height}px`,
-        zIndex: isMaximized ? 9999 : (isDragging ? 998 : 'auto'), // Higher z-index when maximized
+        position: 'absolute', // Always absolute; maximized is handled via portal
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        width: `${size.width}px`,
+        height: `${size.height}px`,
+        zIndex: isMaximized ? 9998 : (isDragging ? 998 : 'auto'), // Lower z-index when maximized
         cursor: isDragging
             ? 'grabbing'
             : activeEdge
               ? 'grab'
               : 'default',
-        transform: isMaximized ? 'translate(-50%, -50%)' : (isDragging ? 'rotate(5deg) scale(1.05)' : 'none'),
+        transform: isDragging ? 'rotate(5deg) scale(1.05)' : 'none',
         transition: isDragging ? 'none' : 'transform 0.2s ease-out, width 0.3s ease, height 0.3s ease',
-        minWidth: isMaximized ? '0' : '350px', // Remove minWidth when maximized
-        maxWidth: isMaximized ? '90%' : '1000px', // Adjust maxWidth when maximized
+        minWidth: '350px', // Ensure minWidth for non-maximized
+        maxWidth: '1000px',
         transformOrigin: 'center',
-        minHeight: isMaximized ? '0' : '390px', // Remove minHeight when maximized
+        minHeight: '390px', 
         backgroundColor: 'white',
-        padding: isMaximized ? '20px' : '10px', // Increase padding when maximized
-        boxShadow: isMaximized ? '0 8px 16px rgba(0,0,0,0.3)' : '0 4px 8px rgba(0,0,0,0.1)',
-        borderRadius: isMaximized ? '0' : '5px', // Remove border radius when maximized
-        overflow: isMaximized ? 'auto' : 'visible', // Enable scrolling when maximized
+        padding: '10px', 
+        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+        borderRadius: '5px',
+        overflow: 'visible',
       }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
@@ -692,7 +852,6 @@ useEffect(() => {
         </button>
       </div>
 
-
       {isEditing ? (
         <form onSubmit={handleSubmit} className="note-edit-form">
           {/* Edit Form Header */}
@@ -706,8 +865,6 @@ useEffect(() => {
               className="title-edit-input"
               required
             />
-
-
           </div>
 
           {/* Edit Form Body */}
@@ -814,7 +971,11 @@ useEffect(() => {
         </>
       )}
     </div>
-  );
+
+    {/* Render the maximized note via Portal */}
+    {isMaximized && MaximizedNote()}
+  </>
+);
 };
 
 export default Note;
