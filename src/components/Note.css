@@ -23,6 +23,14 @@
     flex-shrink: 0;
 }
 
+.edit-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
 .checkbox-label {
     flex: 1;
     display: inline;
@@ -49,10 +57,8 @@
   width: 25px;
   height: 25px; /* Increased height for better touch accessibility */
   cursor: se-resize;
-  background-color: transparent; /* Made transparent to rely on cursor */
+  background-color: transparent; 
   z-index: 3; /* Ensure it's above the drag handle */
-  /* Optionally, add a visual indicator */
-  /* Example: a simple diagonal lines icon */
   background-image: linear-gradient(135deg, #ccc 25%, transparent 25%), 
                     linear-gradient(225deg, #ccc 25%, transparent 25%),
                     linear-gradient(45deg, #ccc 25%, transparent 25%), 
@@ -224,4 +230,263 @@
   height: 20px; /* Adjust the height as needed */
   cursor: grab;
   background-color: transparent;
+}
+
+.note-edit-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+/* Edit Form Header */
+.edit-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.title-edit-input {
+  flex: 1;
+  padding: 8px;
+  font-size: 1.1rem;
+  border: 2px solid #4f46e5; /* Indigo-600 */
+  border-radius: 5px;
+  margin-right: 10px;
+  margin-right: 0;
+  margin-bottom: 10px;
+}
+
+.edit-save-button,
+.edit-cancel-button {
+  padding: 8px 16px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.edit-save-button {
+  background-color: #4f46e5; /* Indigo-600 */
+  color: white;
+  margin-right: 5px;
+}
+
+.edit-save-button:hover {
+  background-color: #4338ca; /* Indigo-700 */
+}
+
+.edit-cancel-button {
+  background-color: #e5e7eb; /* Gray-200 */
+  color: #333;
+}
+
+.edit-cancel-button:hover {
+  background-color: #d1d5db; /* Gray-300 */
+}
+
+/* Edit Form Body */
+.edit-form-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Tags Edit Input */
+.tag-edit-input {
+  margin-bottom: 10px;
+}
+
+.tags-edit-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+  border: 2px solid #4f46e5; /* Indigo-600 */
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tag-edit {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  margin: 5px;
+  background-color: #bfdbfe; /* Blue-300 */
+  border-radius: 15px;
+  font-size: 0.9rem;
+}
+
+.delete-tag-edit {
+  background: none;
+  border: none;
+  margin-left: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  color: #ef4444; /* Red-500 */
+}
+
+/* Edit Textarea */
+.note-edit-textarea {
+  flex: 1;
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid #4f46e5; /* Indigo-600 */
+  border-radius: 5px;
+  resize: vertical;
+  min-height: 150px;
+  margin-bottom: 10px;
+  outline: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+} 
+
+.note-edit-textarea:focus {
+  border-color: #4338ca; /* Indigo-700 */
+}
+/* Edit Form Footer */
+.edit-form-footer {
+  display: flex;
+  flex-direction: column;
+}
+
+.privacy-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.privacy-options label {
+  margin-right: 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.organization-edit-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+  border: 2px solid #4f46e5; /* Indigo-600 */
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+/* Buttons in Edit Form */
+.edit-save-button,
+.edit-cancel-button {
+  height: 40px;
+}
+
+/* Adjust the Markdown editor within the note */
+.note-edit-textarea {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  .note-edit-form {
+      padding: 10px;
+  }
+
+  .edit-form-header {
+      flex-direction: column;
+      align-items: stretch;
+  }
+
+
+  .edit-save-button,
+  .edit-cancel-button {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 5px;
+  } 
+
+
+}
+/* Header Buttons Container */
+.note-header-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: row; /* Horizontal alignment */
+  gap: 15px; /* Spacing between buttons */
+  align-items: center; /* Vertical alignment */
+  z-index: 10;
+}
+
+/* Maximize Button */
+.maximize-button,
+.delete-note {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  right: 45px;
+  top: -.5px;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.maximize-button {
+  background-color: #4f46e5; /* Indigo background */
+  color: white;
+}
+
+.maximize-button:hover {
+  background-color: #3730a3; /* Darker indigo on hover */
+}
+
+.delete-note {
+  background-color: #ef4444; /* Red background */
+  color: white;
+}
+
+.delete-note:hover {
+  background-color: #dc2626; /* Darker red on hover */
+}
+
+/* Maximized Note Styling */
+.note.maximized {
+  position: fixed !important; /* Fixed relative to the viewport */
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  height: 90%;
+  transform: translate(-50%, -50%);
+  z-index: 9999 !important; /* Ensure it's on top */
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  border-radius: 0;
+  padding: 20px;
+  overflow: auto;
+  background-color: white;
+}
+
+/* Add transition for transform and size changes */
+.note {
+  transition: all 0.3s ease-in-out;
+}
+
+@media (max-width: 600px) {
+  .note-header-buttons {
+    gap: 10px; /* Reduce spacing on smaller screens */
+  }
+
+  .maximize-button,
+  .delete-note {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
 }

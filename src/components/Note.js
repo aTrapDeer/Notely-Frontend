@@ -1,7 +1,9 @@
-import React, { useRef, useState, useEffect, useCallback, useContext } from 'react';
+// Note.js
+import React, { useRef, useState, useEffect, useCallback, useContext, createPortal } from 'react';
 import ReactMarkdown from 'react-markdown';
 import WorkspaceContext from './WorkspaceContext'; 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { FaExpand, FaCompress } from 'react-icons/fa'; // Import icons
 import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { debounce } from 'lodash';
 import './Note.css';
@@ -19,7 +21,7 @@ const Note = ({
   const [isDragging, setIsDragging] = useState(false);
   const [editedNote, setEditedNote] = useState(note);
   const [isEditing, setIsEditing] = useState(false);
-  
+  const [isMaximized, setIsMaximized] = useState(false); 
   const [size, setSize] = useState({ width: note.width || 300, height: note.height || 390 });
   const [isResizing, setIsResizing] = useState(false);
   const resizeRef = useRef(null);
@@ -29,6 +31,7 @@ const Note = ({
   });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [activeEdge, setActiveEdge] = useState(null);
+  const [prevState, setPrevState] = useState(null); // To store previous position and size
 
   const debouncedEdit = useCallback(
     debounce((updatedNote) => {
@@ -37,9 +40,57 @@ const Note = ({
     [onEdit]
   );
 
+  const toggleMaximize = () => {
+    if (!isMaximized) {
+      // Save current state before maximizing
+      setPrevState({
+        position: { ...position },
+        size: { ...size }
+      });
+
+      // Calculate center position
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const newWidth = viewportWidth * 0.9; // 90% of viewport
+      const newHeight = viewportHeight * 0.9; // 90% of viewport
+
+      // Calculate new position to center the note
+      const newX = (viewportWidth - newWidth) / 2;
+      const newY = (viewportHeight - newHeight) / 2;
+
+      setPosition({ x: newX, y: newY });
+      setSize({ width: newWidth, height: newHeight });
+      setIsMaximized(true);
+    } else {
+      if (prevState) {
+        // Restore previous state
+        setPosition(prevState.position);
+        setSize(prevState.size);
+        setIsMaximized(false);
+        setPrevState(null);
+      }
+    }
+
+    // Prevent workspace drag when toggling maximize
+    setDisableWorkspaceDrag(true);
+    setTimeout(() => setDisableWorkspaceDrag(false), 300); // Re-enable after transition
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (isMaximized && e.key === 'Escape') {
+        setIsMaximized(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMaximized]);
+
   // Touch event handlers
   const handleTouchStart = useCallback((e) => {
-    if (!isEditing && e.touches.length === 1) {
+    if (!isEditing && e.touches.length === 1 && !isMaximized) { 
       const touch = e.touches[0];
       const { clientX, clientY } = touch;
       const { left, top, right, bottom } = noteRef.current.getBoundingClientRect();
@@ -48,7 +99,7 @@ const Note = ({
   
       // Define the resize handle area
       const resizeHandleWidth = 25;
-      const resizeHandleHeight = 25; // Match CSS height
+      const resizeHandleHeight = 15;
       const isInResizeHandle = 
         clientX >= right - resizeHandleWidth && 
         clientY >= bottom - resizeHandleHeight;
@@ -74,10 +125,10 @@ const Note = ({
         setDisableWorkspaceDrag(true); 
       }
     }
-  }, [isEditing, zoomLevel, setDisableWorkspaceDrag]);
+  }, [isEditing, zoomLevel, setDisableWorkspaceDrag, isMaximized]);
 
   const handleTouchMove = useCallback((e) => {
-    if (isDragging && e.touches.length === 1 && workspaceRef && workspaceRef.current) {
+    if (isDragging && e.touches.length === 1 && workspaceRef && workspaceRef.current && !isMaximized) {
       // Existing dragging logic
       e.preventDefault();
       e.stopPropagation();
@@ -96,8 +147,8 @@ const Note = ({
       });
       debouncedEdit({ ...note, positionX: newPosition.x, positionY: newPosition.y });
     }
-  
-    if (isResizing && e.touches.length === 1 && workspaceRef && workspaceRef.current) {
+
+    if (isResizing && e.touches.length === 1 && workspaceRef && workspaceRef.current && !isMaximized) {
       // Resizing logic
       e.preventDefault();
       e.stopPropagation();
@@ -115,7 +166,7 @@ const Note = ({
         height: Math.max(minHeight, newHeight) 
       });
     }
-  }, [isDragging, isResizing, workspaceRef, zoomLevel, offset, position, note, debouncedEdit, editButtonRef]);
+  }, [isDragging, isResizing, workspaceRef, zoomLevel, offset, position, note, debouncedEdit, editButtonRef, isMaximized]);
 
   const handleTouchEnd = useCallback(() => {
     if (isDragging) {
@@ -130,18 +181,16 @@ const Note = ({
   }, [isDragging, isResizing, setDisableWorkspaceDrag, onEdit, note, size]);
 
   const handleResizeMouseDown = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsResizing(true);
-    setOffset({
-      x: e.clientX - noteRef.current.getBoundingClientRect().left,
-      y: e.clientY - noteRef.current.getBoundingClientRect().top,
-    });
-    setDisableWorkspaceDrag(true);
-  }, [setDisableWorkspaceDrag]);
+    if (!isMaximized) { 
+      e.preventDefault();
+      e.stopPropagation();
+      setIsResizing(true);
+      setDisableWorkspaceDrag(true);
+    }
+  }, [isMaximized, setDisableWorkspaceDrag]);
 
   const handleResizeMouseMove = useCallback((e) => {
-    if (isResizing && workspaceRef && workspaceRef.current) {
+    if (isResizing && workspaceRef && workspaceRef.current && !isMaximized) {
       const { clientX, clientY } = e;
       const { left, top } = workspaceRef.current.getBoundingClientRect();
       const newWidth = (clientX - left) / zoomLevel - position.x;
@@ -156,15 +205,38 @@ const Note = ({
         height: Math.max(minHeight, newHeight) 
       });
     }
-  }, [isResizing, workspaceRef, zoomLevel, position, editButtonRef]);
+  }, [isResizing, workspaceRef, zoomLevel, position, editButtonRef, isMaximized]);
+
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (isMaximized) {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const newWidth = viewportWidth * 0.9; // 90% of viewport
+        const newHeight = viewportHeight * 0.9; // 90% of viewport
+  
+        // Recalculate center position
+        const newX = (viewportWidth - newWidth) / 2;
+        const newY = (viewportHeight - newHeight) / 2;
+  
+        setPosition({ x: newX, y: newY });
+        setSize({ width: newWidth, height: newHeight });
+      }
+    };
+  
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isMaximized]);
+  
 
   const handleResizeMouseUp = useCallback(() => {
-    if (isResizing) {
+    if (isResizing && !isMaximized) {
       setIsResizing(false);
-      setDisableWorkspaceDrag(false);
+      setDisableWorkspaceDrag(false); 
       onEdit({ ...note, width: size.width, height: size.height });
     }
-  }, [isResizing, size, note, onEdit, setDisableWorkspaceDrag]);
+  }, [isResizing, setDisableWorkspaceDrag, onEdit, note, size, isMaximized]);
 
   const renderContent = (content, handleCheckboxChange) => {
     const renderCheckbox = (props) => {
@@ -189,6 +261,34 @@ const Note = ({
       );
     };
 
+  // Create a portal for the maximized note
+  const MaximizedNote = (
+    <div className="note maximized" /* existing maximized styles */>
+      {/* Header Buttons */}
+      <div className="note-header-buttons">
+        <button 
+          className="maximize-button" 
+          onClick={toggleMaximize}
+          aria-label={isMaximized ? 'Minimize Note' : 'Maximize Note'}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+          {isMaximized ? <FaCompress /> : <FaExpand />}
+        </button>
+
+        <button 
+          className="delete-note" 
+          onClick={handleDeleteClick}
+          aria-label="Delete Note"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+          &times;
+        </button>
+      </div>
+</div>
+  );
+  
     return (
       <div className="note-content">
         <ReactMarkdown
@@ -247,7 +347,7 @@ const Note = ({
   };
   
   const handleMouseDown = useCallback((event) => {
-    if (!isEditing) {
+    if (!isEditing && !isMaximized) {
       const { clientX, clientY } = event;
       const { left, top, right, bottom } = noteRef.current.getBoundingClientRect();
       const grabAreaWidth = 30; 
@@ -266,13 +366,30 @@ const Note = ({
           x: (clientX - left) / zoomLevel,
           y: (clientY - top) / zoomLevel,
         });
-        setDisableWorkspaceDrag(true);
       }
     }
-  }, [isEditing, zoomLevel, setDisableWorkspaceDrag]);
+  }, [isEditing, zoomLevel, isMaximized]);
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!editedNote.title.trim()) {
+      alert('Title cannot be empty.');
+      return;
+    }
 
+    if (!editedNote.content.trim()) {
+      alert('Content cannot be empty.');
+      return;
+    }
+
+    onEdit(editedNote);
+    debouncedEdit(editedNote);
+    setIsEditing(false);
+  };
+  
   const handleMouseMove = useCallback((event) => {
-    if (isDragging && workspaceRef && workspaceRef.current) {
+    if (isDragging && workspaceRef && workspaceRef.current && !isMaximized) {
       const { clientX, clientY } = event;
       const { left, top } = workspaceRef.current.getBoundingClientRect();
       const workspaceX = (clientX - left) / zoomLevel;
@@ -287,85 +404,115 @@ const Note = ({
       });
       debouncedEdit({ ...note, positionX: newPosition.x, positionY: newPosition.y });
     }
-  }, [isDragging, workspaceRef, zoomLevel, offset, note, debouncedEdit]);
+  }, [isDragging, workspaceRef, zoomLevel, offset, note, debouncedEdit, isMaximized]);
+
 
   const handleMouseUp = useCallback(() => {
-    if (isDragging) {
+    if (isDragging && !isMaximized) {
       setIsDragging(false);
-      setDisableWorkspaceDrag(false);
     }
-  }, [isDragging, setDisableWorkspaceDrag]);
+  }, [isDragging, isMaximized]);
 
-  // Edge detection for cursor changes
-  const handleMouseMoveEdgeDetection = useCallback(
-    (e) => {
-      if (!noteRef.current) return;
+// Existing function
+const handleMouseMoveEdgeDetection = useCallback(
+  (e) => {
+    if (isMaximized) {
+      setActiveEdge(null);
+      return;
+    }
 
-      const { clientX, clientY } = e;
-      const { left, top, right, bottom } = noteRef.current.getBoundingClientRect();
-      const edgeThreshold = 30;
-      const topThreshold = 50;
+    if (!noteRef.current) return;
 
-      let newActiveEdge = null;
+    const { clientX, clientY } = e;
+    const { left, top, right, bottom } = noteRef.current.getBoundingClientRect();
+    const edgeThreshold = 30;
+    const topThreshold = 50;
 
-      if (clientY - top < topThreshold) {
-        newActiveEdge = 'top';
-      } else if (bottom - clientY < edgeThreshold) {
-        newActiveEdge = 'bottom';
-      } else if (clientX - left < edgeThreshold) {
-        newActiveEdge = 'left';
-      } else if (right - clientX < edgeThreshold) {
-        newActiveEdge = 'right';
-      }
+    let newActiveEdge = null;
 
-      if (newActiveEdge !== activeEdge) {
-        setActiveEdge(newActiveEdge);
-        console.log('Active Edge:', newActiveEdge);
-      }
-    },
-    [activeEdge]
-  );
+    if (clientY - top < topThreshold) {
+      newActiveEdge = 'top';
+    } else if (bottom - clientY < edgeThreshold) {
+      newActiveEdge = 'bottom';
+    } else if (clientX - left < edgeThreshold) {
+      newActiveEdge = 'left';
+    } else if (right - clientX < edgeThreshold) {
+      newActiveEdge = 'right';
+    }
 
-  // Reset active edge when mouse leaves the note
-  const handleMouseLeave = useCallback(() => {
-    setActiveEdge(null);
-  }, []);
+    if (newActiveEdge !== activeEdge) {
+      setActiveEdge(newActiveEdge);
+      console.log('Active Edge:', newActiveEdge);
+    }
+  },
+  [activeEdge, isMaximized]
+);
 
-  // Unified event listeners for mouse and touch events
-  useEffect(() => {
-    const handleGlobalMouseMove = (e) => {
-      if (isResizing) {
-        handleResizeMouseMove(e);
-      } else {
-        handleMouseMove(e);
-      }
-    };
 
-    const handleGlobalMouseUp = (e) => {
-      if (isResizing) {
-        handleResizeMouseUp(e);
-      } else {
-        handleMouseUp(e);
-      }
-    };
-    
-    document.addEventListener('mousemove', handleGlobalMouseMove);
-    document.addEventListener('mouseup', handleGlobalMouseUp);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false }); 
-    document.addEventListener('touchend', handleTouchEnd);
+// **Add this function below**
+const handleMouseLeave = useCallback(() => {
+  setActiveEdge(null);
+}, []);
+
+useEffect(() => {
+  const handleGlobalMouseMove = (e) => {
+    if (isResizing) {
+      handleResizeMouseMove(e);
+    } else {
+      handleMouseMove(e);
+    }
+  };
+
+  const handleGlobalMouseUp = (e) => {
+    if (isResizing) {
+      handleResizeMouseUp(e);
+    } else {
+      handleMouseUp(e);
+    }
+  };
+    if (!isMaximized) {
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+      document.addEventListener('mousemove', handleMouseMoveEdgeDetection);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleResizeMouseMove);
+      document.addEventListener('mouseup', handleResizeMouseUp);
+      document.addEventListener('touchmove', handleTouchMove); 
+      document.addEventListener('touchend', handleTouchEnd);
+    }
 
     return () => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('mousemove', handleMouseMoveEdgeDetection);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleResizeMouseMove);
+      document.removeEventListener('mouseup', handleResizeMouseUp);
       document.removeEventListener('touchmove', handleTouchMove); 
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [handleMouseMove, handleMouseUp, handleResizeMouseMove, handleResizeMouseUp, handleTouchMove, handleTouchEnd, isResizing]);
+  }, [handleMouseMove, handleMouseUp, handleResizeMouseMove, handleResizeMouseUp, handleTouchMove, handleTouchEnd, isResizing, isMaximized]);
 
   useEffect(() => {
     setSize({ width: note.width || 300, height: note.height || 390 });
     setPosition({ x: note.positionX || 0, y: note.positionY || 0 });
   }, [note]);
+
+  useEffect(() => {
+    if (!isMaximized) {
+      document.addEventListener('mousemove', handleResizeMouseMove);
+      document.addEventListener('mouseup', handleResizeMouseUp);
+    } else {
+      document.removeEventListener('mousemove', handleResizeMouseMove);
+      document.removeEventListener('mouseup', handleResizeMouseUp);
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleResizeMouseMove);
+      document.removeEventListener('mouseup', handleResizeMouseUp);
+    };
+  }, [handleResizeMouseMove, handleResizeMouseUp, isMaximized]);
 
   const handleContentClick = (e) => {
     e.stopPropagation();
@@ -373,24 +520,19 @@ const Note = ({
 
   const handleEditClick = () => {
     setIsEditing(true);
-    setEditedNote({ ...note });
+    setEditedNote({...note});
   };
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     if (name === 'tags') {
-      setEditedNote({ ...editedNote, [name]: value.split(',').map(tag => tag.trim()) });
+      setEditedNote({...editedNote, [name]: value.split(',').map(tag => tag.trim())});
     } else {
-      setEditedNote({ ...editedNote, [name]: value });
+      setEditedNote({...editedNote, [name]: value});
     }
   };
 
-  const handleEditSubmit = (e) => {
-    e.preventDefault();
-    onEdit(editedNote);
-    debouncedEdit(editedNote);
-    setIsEditing(false);
-  };
+
 
   const handleEditCancel = () => {
     setIsEditing(false);
@@ -399,8 +541,26 @@ const Note = ({
 
   const handleTagDelete = (index) => {
     const updatedTags = editedNote.tags.filter((_, i) => i !== index);
-    setEditedNote({ ...editedNote, tags: updatedTags });
+    setEditedNote({...editedNote, tags: updatedTags});
   };
+
+  const handleVisibilityChange = (type) => {
+    setEditedNote({ ...editedNote, privacyType: type });
+  };
+  
+  const getSliderPosition = () => {
+    switch (editedNote.privacyType) {
+      case 'global':
+        return 0;
+      case 'organization':
+        return 100;
+      case 'private':
+        return 200;
+      default:
+        return 0;
+    }
+  };
+
 
   const handleDeleteClick = (e) => {
     e.stopPropagation();
@@ -414,198 +574,241 @@ const Note = ({
   return (
     <div
       ref={noteRef}
-      className="note"
+      className={`note ${isMaximized ? 'maximized' : ''}`}
       style={{
-        position: 'absolute',
-        left: `${position.x}px`,
-        top: `${position.y}px`,
+        position: isMaximized ? 'fixed' : 'absolute',
+        left: isMaximized ? '50%' : `${position.x}px`,
+        top: isMaximized ? '50%' : `${position.y}px`,
+        width: isMaximized ? '90%' : `${size.width}px`,
+        height: isMaximized ? '90%' : `${size.height}px`,
+        zIndex: isMaximized ? 9999 : (isDragging ? 998 : 'auto'), // Higher z-index when maximized
         cursor: isDragging
             ? 'grabbing'
             : activeEdge
               ? 'grab'
               : 'default',
-        transform: isDragging ? 'rotate(5deg) scale(1.05)' : 'none',
-        transition: isDragging ? 'none' : 'transform 0.2s ease-out',
-        zIndex: isDragging ? 998 : 'auto', // Ensure this is lower than TopBar's z-index
-        minWidth: '350px',
-        maxWidth: '1000px',
-        transformOrigin: 'top left',
-        minHeight: '390px',
-        width: `${size.width}px`,
-        height: `${size.height}px`,
+        transform: isMaximized ? 'translate(-50%, -50%)' : (isDragging ? 'rotate(5deg) scale(1.05)' : 'none'),
+        transition: isDragging ? 'none' : 'transform 0.2s ease-out, width 0.3s ease, height 0.3s ease',
+        minWidth: isMaximized ? '0' : '350px', // Remove minWidth when maximized
+        maxWidth: isMaximized ? '90%' : '1000px', // Adjust maxWidth when maximized
+        transformOrigin: 'center',
+        minHeight: isMaximized ? '0' : '390px', // Remove minHeight when maximized
         backgroundColor: 'white',
-        padding: '10px',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-        borderRadius: '5px',
+        padding: isMaximized ? '20px' : '10px', // Increase padding when maximized
+        boxShadow: isMaximized ? '0 8px 16px rgba(0,0,0,0.3)' : '0 4px 8px rgba(0,0,0,0.1)',
+        borderRadius: isMaximized ? '0' : '5px', // Remove border radius when maximized
+        overflow: isMaximized ? 'auto' : 'visible', // Enable scrolling when maximized
       }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       onMouseMove={handleMouseMoveEdgeDetection}
       onMouseLeave={handleMouseLeave}
     >
-      <div className={`note-highlight note-highlight-top ${activeEdge === 'top' ? 'active' : ''}`} />
-      <div className={`note-highlight note-highlight-left ${activeEdge === 'left' ? 'active' : ''}`} />
-      <div className={`note-highlight note-highlight-right ${activeEdge === 'right' ? 'active' : ''}`} />
-      <div className={`note-highlight note-highlight-bottom ${activeEdge === 'bottom' ? 'active' : ''}`} />
-
-      {/* Bottom Drag Handle */}
-      <div
-        className="bottom-drag-handle"
-        onMouseDown={(e) => {
-          e.stopPropagation(); // Prevent triggering parent handlers
-          if (!isEditing) {
-            const { clientX, clientY } = e;
-            const { left, top } = noteRef.current.getBoundingClientRect();
-
-            setIsDragging(true);
-            setOffset({
-              x: (clientX - left) / zoomLevel,
-              y: (clientY - top) / zoomLevel,
-            });
-            setDisableWorkspaceDrag(true);
-          }
-        }}
-        onTouchStart={(e) => {
-          e.stopPropagation(); // Prevent triggering parent handlers
-          if (!isEditing && e.touches.length === 1) {
-            const touch = e.touches[0];
-            const { clientX, clientY } = touch;
-            const { left, top } = noteRef.current.getBoundingClientRect();
-
-            setIsDragging(true);
-            setOffset({
-              x: (clientX - left) / zoomLevel,
-              y: (clientY - top) / zoomLevel,
-            });
-            setDisableWorkspaceDrag(true);
-          }
-        }}
-      />
+      {/* Highlight Areas */}
+      {!isMaximized && (
+        <>
+          <div className={`note-highlight note-highlight-top ${activeEdge === 'top' ? 'active' : ''}`} />
+          <div className={`note-highlight note-highlight-left ${activeEdge === 'left' ? 'active' : ''}`} />
+          <div className={`note-highlight note-highlight-right ${activeEdge === 'right' ? 'active' : ''}`} />
+          <div className={`note-highlight note-highlight-bottom ${activeEdge === 'bottom' ? 'active' : ''}`} />
+        </>
+      )}
 
       {/* Resize Handle */}
-      <div
-        ref={resizeRef}
-        className="resize-handle"
-        onMouseDown={handleResizeMouseDown}
-        onTouchStart={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setIsResizing(true);
-          const touch = e.touches[0];
-          setOffset({
-            x: (touch.clientX - noteRef.current.getBoundingClientRect().left) / zoomLevel,
-            y: (touch.clientY - noteRef.current.getBoundingClientRect().top) / zoomLevel,
-          });
-          setDisableWorkspaceDrag(true);
-        }}
-      />  
+      {!isMaximized && (
+        <div
+          ref={resizeRef}
+          className="resize-handle"
+          onMouseDown={handleResizeMouseDown}
+          onTouchStart={(e) => {
+            if (!isMaximized) {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsResizing(true); 
+              const touch = e.touches[0];
+              setOffset({
+                x: (touch.clientX - noteRef.current.getBoundingClientRect().left) / zoomLevel,
+                y: (touch.clientY - noteRef.current.getBoundingClientRect().top) / zoomLevel,
+              });
+              setDisableWorkspaceDrag(true);
+            }
+          }}
+        />  
+      )}
+
+      {/* Bottom Drag Handle */}
+      {!isMaximized && (
+        <div
+          className="bottom-drag-handle"
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            if (!isEditing && !isMaximized) {
+              const { clientX, clientY } = e;
+              const { left, top } = noteRef.current.getBoundingClientRect();
+
+              setIsDragging(true);
+              setOffset({
+                x: (clientX - left) / zoomLevel,
+                y: (clientY - top) / zoomLevel,
+              });
+            }
+          }}
+          onTouchStart={(e) => {
+            if (!isEditing && e.touches.length === 1 && !isMaximized) {
+              const touch = e.touches[0];
+              const { clientX, clientY } = touch;
+              const { left, top } = noteRef.current.getBoundingClientRect();
+
+              setIsDragging(true);
+              setOffset({
+                x: (clientX - left) / zoomLevel,
+                y: (clientY - top) / zoomLevel,
+              });
+            }
+          }}
+        />
+      )}
+
+      {/* Header Buttons: Maximize/Minimize and Delete */}
+      <div className="note-header-buttons">
+        <button 
+          className="maximize-button" 
+          onClick={toggleMaximize}
+          aria-label={isMaximized ? 'Minimize Note' : 'Maximize Note'}
+          onMouseDown={(e) => e.stopPropagation()} // Prevent drag initiation
+          onTouchStart={(e) => e.stopPropagation()} // Prevent drag initiation on touch devices
+        >
+          {isMaximized ? <FaCompress /> : <FaExpand />}
+        </button>
+
+        <button 
+          className="delete-note" 
+          onClick={handleDeleteClick}
+          aria-label="Delete Note"
+          onMouseDown={(e) => e.stopPropagation()} // Prevent drag initiation
+          onTouchStart={(e) => e.stopPropagation()} // Prevent drag initiation on touch devices
+        >
+          &times;
+        </button>
+      </div>
+
 
       {isEditing ? (
-        <form onSubmit={handleEditSubmit} className="note-form">
-          <input
-            type="text"
-            name="title"
-            value={editedNote.title}
-            onChange={handleEditChange}
-            placeholder="Title"
-            className="note-input"
-          />
-
-          <div className="tag-input">
+        <form onSubmit={handleSubmit} className="note-edit-form">
+          {/* Edit Form Header */}
+          <div className="edit-form-header">
             <input
               type="text"
-              name="tags"
-              value={editedNote.tags.join(', ')}
+              name="title"
+              value={editedNote.title}
               onChange={handleEditChange}
-              placeholder="Tags (comma-separated)"
-              className="note-input"
+              placeholder="Title"
+              className="title-edit-input"
+              required
             />
-            <div className="tag-list">
-              {editedNote.tags.map((tag, index) => (
-                <span key={index} className="tag">
-                  {tag}
-                  <button
-                    type="button"
-                    className="delete-tag"
-                    onClick={() => handleTagDelete(index)}
-                  >
-                    &times;
-                  </button>
-                </span>
-              ))}
-            </div>
+
+
           </div>
-          <textarea
-            name="content"
-            value={editedNote.content}
-            onChange={handleEditChange}
-            placeholder="Take a note..."
-            className="note-textarea"
-            onKeyDown={(e) => e.stopPropagation()}
-          />
-          <div>
-            <label>
-              <input
-                type="radio"
-                name="privacyType"
-                value="global"
-                checked={editedNote.privacyType === 'global'}
-                onChange={handleEditChange}
-              />
-              Global (Public)
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="visibility"
-                value="organization"
-                checked={editedNote.visibility === 'organization'}
-                onChange={handleEditChange}
-              />
-              Organization
-            </label>
-            {editedNote.visibility === 'organization' && (
+
+          {/* Edit Form Body */}
+          <div className="edit-form-body">
+            {/* Tags Edit Input */}
+            <div className="tag-edit-input">
               <input
                 type="text"
-                name="organization"
-                value={editedNote.organization}
+                name="tags"
+                value={editedNote.tags.join(', ')}
                 onChange={handleEditChange}
-                placeholder="Organization"
-                className="note-input"
+                placeholder="Tags (comma-separated)"
+                className="tags-edit-input"
               />
-            )}
-            <label>
-              <input
-                type="radio"
-                name="visibility"
-                value="private"
-                checked={editedNote.visibility === 'private'}
-                onChange={handleEditChange}
-              />
-              Private
-            </label>
+              <div className="tag-list">
+                {editedNote.tags.map((tag, index) => (
+                  <span key={index} className="tag-edit">
+                    {tag}
+                    <button
+                      type="button"
+                      className="delete-tag-edit"
+                      onClick={() => handleTagDelete(index)}
+                      aria-label={`Delete tag ${tag}`}
+                    >
+                      &times;
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Edit Textarea */}
+            <textarea
+              name="content"
+              value={editedNote.content}
+              onChange={handleEditChange}
+              placeholder="Take a note..."
+              className="note-edit-textarea"
+              required
+              onKeyDown={(e) => e.stopPropagation()}
+            />
+
+            {/* Edit Form Footer: Privacy Options */}
+            <div className="edit-form-footer">
+              <div className="slider-container">
+                <div
+                  className={`slider-option ${editedNote.privacyType === 'global' ? 'active' : ''}`}
+                  onClick={() => handleVisibilityChange('global')}
+                >
+                  <span className="slider-label">Global (Public)</span>
+                </div>
+                <div
+                  className={`slider-option ${editedNote.privacyType === 'organization' ? 'active' : ''}`}
+                  onClick={() => handleVisibilityChange('organization')}
+                >
+                  <span className="slider-label">Organization</span>
+                </div>
+                <div
+                  className={`slider-option ${editedNote.privacyType === 'private' ? 'active' : ''}`}
+                  onClick={() => handleVisibilityChange('private')}
+                >
+                  <span className="slider-label">Private</span>
+                </div>
+                <div className="slider-background" style={{ transform: `translateX(${getSliderPosition()}%)` }}></div>
+              </div>
+              {editedNote.privacyType === 'organization' && (
+                <input
+                  type="text"
+                  name="organization"
+                  value={editedNote.organization}
+                  onChange={handleEditChange}
+                  placeholder="Organization"
+                  className="organization-edit-input"
+                  required
+                />
+              )}
+            </div>
+            <div className="edit-buttons">
+              <button type="button" className="edit-cancel-button" onClick={handleEditCancel}>
+                Cancel
+              </button>
+              <button type="submit" className="edit-save-button">
+                Save
+              </button>
+            </div>
           </div>
-          <button type="submit">Save</button>
-          <button type="button" onClick={handleEditCancel}>
-            Cancel
-          </button>
         </form>
       ) : (
         <>
-          <button 
-            className="delete-note" 
-            onClick={handleDeleteClick}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            X
-          </button>
           <h1 className="note-title">{note.title}</h1>
           <div className="note-content" onClick={handleContentClick}>
             {renderContent(note.content, handleCheckboxChange)}
           </div>
           <p className="note-tags">{note.tags.join(', ')}</p>
-          <p className="note-visibility">Visibility: {note.privacyType}</p>
-          <button className="edit-note" onClick={handleEditClick} onMouseDown={(e) => e.stopPropagation()}>
+          <p className="note-visibility">Visibility: {note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}</p>
+          <button 
+            className="edit-note" 
+            onClick={handleEditClick} 
+            onMouseDown={(e) => e.stopPropagation()}
+            aria-label="Edit Note"
+          >
             Edit Note
           </button>
         </>
