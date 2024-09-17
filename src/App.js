@@ -13,7 +13,6 @@ import NoteForm from './components/NoteForm';
 import NoteList from './components/NoteList';
 import DeleteConfirmation from './components/popups/DeleteConfirmation';
 import ReactDOM from 'react-dom';
-//New Push
 Amplify.configure(awsExports);
 
 function App({ signOut, user }) {
@@ -26,15 +25,15 @@ function App({ signOut, user }) {
 
   const handleSimilarNotes = (notes) => {
     setSimilarNotes(notes);
-    console.log('Similar notes:', notes);
+    ////console.log('Similar notes:', notes);
   };
 
   const handleDeleteClick = (noteId) => {
-    console.log('Delete clicked for note:', noteId);
+    ////console.log('Delete clicked for note:', noteId);
     setDeleteConfirmation({ isOpen: true, noteId });
   };
   const handleDeleteConfirm = () => {
-    console.log('Delete confirmed for note:', deleteConfirmation.noteId);
+    ////console.log('Delete confirmed for note:', deleteConfirmation.noteId);
     if (deleteConfirmation.noteId) {
       handleDelete(deleteConfirmation.noteId);
       setDeleteConfirmation({ isOpen: false, noteId: null });
@@ -42,7 +41,7 @@ function App({ signOut, user }) {
   };
   
   const handleDeleteCancel = () => {
-    console.log('Delete cancelled');
+    //console.log('Delete cancelled');
     setDeleteConfirmation({ isOpen: false, noteId: null });
   };
 
@@ -50,7 +49,7 @@ function App({ signOut, user }) {
     if (user && user.signInDetails && user.signInDetails.loginId) {
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/login`, { loginId: user.signInDetails.loginId })
         .then(response => {
-          console.log('User details:', response.data.user);
+          //console.log('User details:', response.data.user);
           setUserDetails(response.data.user);
         })
         .catch(error => console.log('Error during login:', error));
@@ -87,7 +86,7 @@ function App({ signOut, user }) {
     
     axios.post(`${process.env.REACT_APP_BACKEND_URL}/save_note`, newNote)
       .then(response => {
-        console.log('Note saved successfully:', response.data);
+        //console.log('Note saved successfully:', response.data);
         setNotes([...notes, newNote]);
       })
       .catch(error => {
@@ -103,10 +102,10 @@ function App({ signOut, user }) {
  
     axios.post(`${process.env.REACT_APP_BACKEND_URL}/delete_note`, { 
       userId: userDetails['USER#'],
-      noteId: noteId // Remove 'NOTE#' prefix if it's not needed
+      noteId: noteId 
     })
     .then(response => {
-      console.log(response.data.message);
+      //console.log(response.data.message);
       setNotes(notes.filter(note => note.id !== noteId));
     })
     .catch(error => {
@@ -119,7 +118,7 @@ function App({ signOut, user }) {
       note.id === updatedNote.id ? { ...note, ...updatedNote } : note
     );
     setNotes(newNotes);
-  // Send update to backend
+
   axios.post(`${process.env.REACT_APP_BACKEND_URL}/update_note`, {
     userId: userDetails['USER#'],
     id: updatedNote.id,
@@ -127,52 +126,52 @@ function App({ signOut, user }) {
     positionY: updatedNote.positionY,
     width: updatedNote.width,
     height: updatedNote.height,
-    ...updatedNote  // This will include all updated fields
+    ...updatedNote  
   })
     .then(response => {
-      console.log('Note updated successfully:', response.data);
+      //console.log('Note updated successfully:', response.data);
     })
     .catch(error => {
       console.error('Failed to update the note:', error);
     });
 };
 
-  return (
-    <div className="App h-screen flex flex-col">
-      <TopBar signOut={signOut} />
-      <div className="flex-grow overflow-hidden">
-        <Workspace setWorkspaceTransform={setWorkspaceTransform} ref={workspaceRef}>
-          <div className="space-y-20">
-            <NoteForm
-              onSubmit={handleSubmit} 
-              userDetails={userDetails}
-              workspaceTransform={workspaceTransform}
-              onSimilarNotes={handleSimilarNotes}
-              similarNotes={similarNotes}  // Pass similarNotes to NoteForm
-            />
-            <NoteList 
-              notes={notes} 
-              onDelete={handleDelete}
-              onEdit={handleEdit}
-              workspaceRef={workspaceRef}
-              onDeleteClick={handleDeleteClick}
-              zoomLevel={workspaceTransform.scale}
-            />
-          </div>
+return (
+  <div className="App h-screen flex flex-col">
+    <TopBar signOut={signOut} />
+    <div className="flex-grow overflow-hidden relative" style={{ paddingBottom: '60px' }}>
+      {/* Added paddingBottom to accommodate the toolbar height when collapsed */}
+      <NoteForm
+            onSubmit={handleSubmit} 
+            userDetails={userDetails}
+            workspaceTransform={workspaceTransform}
+            onSimilarNotes={handleSimilarNotes}
+            similarNotes={similarNotes}  // Pass similarNotes to NoteForm
+          /> 
+      <Workspace setWorkspaceTransform={setWorkspaceTransform} ref={workspaceRef}>
+        <div className="space-y-20">
 
-        </Workspace>
-      </div>
-      {ReactDOM.createPortal(
-        <DeleteConfirmation 
-          isOpen={deleteConfirmation.isOpen}
-          onClose={handleDeleteCancel}
-          onConfirm={handleDeleteConfirm}
-        />,
-        document.body
-      )}
+          <NoteList 
+            notes={notes} 
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+            workspaceRef={workspaceRef}
+            onDeleteClick={handleDeleteClick}
+            zoomLevel={workspaceTransform.scale}
+          />
+        </div>
+      </Workspace>
     </div>
-  );
+    {ReactDOM.createPortal(
+      <DeleteConfirmation 
+        isOpen={deleteConfirmation.isOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+      />,
+      document.body
+    )}
+  </div>
+);
 }
-
 
 export default withAuthenticator(App);

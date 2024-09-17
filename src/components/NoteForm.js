@@ -21,6 +21,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
         organization: '',
         id: Math.random() * 10,
     });
+    const [isExpanded, setIsExpanded] = useState(false); 
     const editorRef = useRef(null);
 
     const debounce = (func, delay) => {
@@ -215,8 +216,8 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
             positionX: workspaceTransform.x,
             positionY: workspaceTransform.y
         };
-        console.log("Testing note data post")
-        console.log(noteData)
+        //console.log("Testing note data post")
+        //console.log(noteData)
         onSubmit(noteData);
         
         setState({
@@ -227,22 +228,31 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
             id: Math.random() * 10,
         });
         setNoteText('');
+        setIsExpanded(false);
     };
 
     return (
-        <div className="create-notes w-full max-w-4xl mx-auto mt-40"> {/* Increased top margin significantly */}
-            <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Title"
-                    name="title"
-                    className="border-2 border-blue-200 p-2 rounded"
-                    onChange={handleChange}
-                    value={state.title}
-                    onKeyDown={(e) => e.stopPropagation()} // Add this line
+        <div className={`note-form-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
+            {/* Toolbar Header */}
+            <div className="toolbar-header" onClick={() => setIsExpanded(!isExpanded)}>
+                <div className="toolbar-title">New Note</div>
+                <button className="toggle-button">
+                    {isExpanded ? 'Close' : 'Expand'}
+                </button>
+            </div>
 
-                />
-                
+            {/* Expanded Form */}
+            {isExpanded && (
+                <form className="note-form" onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        placeholder="Title"
+                        name="title"
+                        className="border-2 border-blue-200 p-2 rounded title-input"
+                        onChange={handleChange}
+                        value={state.title}
+                        onKeyDown={(e) => e.stopPropagation()} // Prevent workspace interactions
+                    />
                 <div className="tag-input">
                     <input
                         type="text"
@@ -346,7 +356,8 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                 <button type="submit" className="note-button">
                     Add Note
                 </button>
-            </form>
+                </form>
+            )}
         </div>
     );
 }
