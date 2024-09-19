@@ -1,8 +1,8 @@
 // OptionsWindow.js
 import React, { useEffect } from 'react';
-import './OptionsWindow.css'; // Corrected the filename
+import './OptionsWindow.css';
 
-function OptionsWindow({ onSelect, onClose, showOptionsWindow }) {
+function OptionsWindow({ onSelect, onClose, showOptionsWindow, options }) {
   useEffect(() => {
     if (!showOptionsWindow) return; // Only add listeners if the window is shown
 
@@ -27,49 +27,83 @@ function OptionsWindow({ onSelect, onClose, showOptionsWindow }) {
       document.removeEventListener('touchstart', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [onClose, showOptionsWindow]); // Include showOptionsWindow in dependencies
+  }, [onClose, showOptionsWindow]);
 
-  if (!showOptionsWindow) return null; // Early return after hooks are called
+  if (!showOptionsWindow) return null;
 
   const handleOptionClick = (option) => (e) => {
-    e.stopPropagation(); // Prevent event from bubbling up to the overlay
+    e.stopPropagation();
     onSelect(option);
     onClose();
   };
 
   const handleTouchStart = (e) => {
-    e.stopPropagation(); // Prevent touch event from bubbling up to the overlay
+    e.stopPropagation();
   };
 
   return (
     <div className="options-overlay">
       <div
         className="options-window"
-        onClick={(e) => e.stopPropagation()} // Prevent clicks inside the window from bubbling up
-        onTouchStart={handleTouchStart} // Prevent touch events inside the window from bubbling up
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={handleTouchStart}
         role="dialog"
         aria-modal="true"
         aria-labelledby="options-window-title"
       >
-        <h2 id="options-window-title" className="visually-hidden">
-          Select an Option
-        </h2>
-        <div
-          className="option-item"
-          onClick={handleOptionClick('todo')}
-          onTouchStart={handleOptionClick('todo')}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              handleOptionClick('todo')(e);
-            }
-          }}
-          aria-label="Insert Todo Checkbox"
-        >
-          Checkbox
-        </div>
 
+        {/* If options are provided, display them */}
+        {options && options.length > 0 ? (
+          options.map((option) => (
+            <div
+              key={option.id}
+              className="option-item"
+              onClick={() => onSelect(option)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  onSelect(option);
+                }
+              }}
+              aria-label={`Rope to note ${option.title}`}
+            >
+              {option.title}
+            </div>
+          ))
+        ) : (
+          <>
+            {/* Default options when no options are provided */}
+            <div
+              className="option-item"
+              onClick={handleOptionClick('todo')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleOptionClick('todo')(e);
+                }
+              }}
+              aria-label="Insert Todo Checkbox"
+            >
+              Checkbox
+            </div>
+            <div
+              className="option-item"
+              onClick={handleOptionClick('rope')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleOptionClick('rope')(e);
+                }
+              }}
+              aria-label="Create Rope"
+            >
+              Note Rope
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -750,7 +750,7 @@ return (
         transform: isDragging ? 'rotate(5deg) scale(1.05)' : 'none',
         transition: isDragging ? 'none' : 'transform 0.2s ease-out, width 0.3s ease, height 0.3s ease',
         minWidth: '350px', // Ensure minWidth for non-maximized
-        maxWidth: '1000px',
+        maxWidth: '2000px',
         transformOrigin: 'center',
         minHeight: '390px', 
         backgroundColor: 'white',

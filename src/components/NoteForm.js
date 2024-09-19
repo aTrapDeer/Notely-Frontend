@@ -14,6 +14,12 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
     const [noteText, setNoteText] = useState('');
     const [debouncedNoteText, setDebouncedNoteText] = useState('');
     const [recommendation, setRecommendation] = useState('');
+    //Rope
+    const [ropeQuery, setRopeQuery] = useState('');
+    const [ropeOptions, setRopeOptions] = useState([]);
+    const [showRopeOptions, setShowRopeOptions] = useState(false);
+    const [selectedRopeNote, setSelectedRopeNote] = useState(null);
+    
     const [showOptionsWindow, setShowOptionsWindow] = useState(false);
     const [state, setState] = useState({
         title: '',
@@ -149,6 +155,21 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
 
         setNoteText(updatedText);
         debouncedSetNoteText(updatedText);
+            // Detect '/rope' command
+            const ropeCommandMatch = text.match(/\/rope\s+(.*)$/);
+            if (ropeCommandMatch) {
+            const query = ropeCommandMatch[1].trim();
+            setRopeQuery(query);
+            if (query.length > 0) {
+            // Fetch matching notes from the backend
+            fetchMatchingNotes(query);
+            setShowRopeOptions(true);
+            } else {
+            setShowRopeOptions(false);
+            }
+            } else {
+            setShowRopeOptions(false);
+            }
 
         if (updatedText !== text) {
             setTimeout(() => {
@@ -167,7 +188,26 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
         } else {
             setShowOptionsWindow(false);
         }
+
+
     };
+
+    const fetchMatchingNotes = useCallback(
+        debounce(async (query) => {
+          try {
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/search_notes`, {
+              params: {
+                userId: userDetails['USER#'],
+                query,
+              },
+            });
+            setRopeOptions(response.data.notes);
+          } catch (error) {
+            console.error('Error fetching matching notes:', error);
+          }
+        }, 300),
+        [userDetails]
+      );
 
     const renderHTML = (text) => {
         return mdParser.render(text)
@@ -254,7 +294,20 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                     {isExpanded ? 'Close' : 'Expand'}
                 </button>
             </div>
-
+            {showRopeOptions && (
+  <OptionsWindow
+    options={ropeOptions}
+    onSelect={(option) => {
+      setSelectedRopeNote(option);
+      // Replace '/rope {title}' with a placeholder in the note text
+      setNoteText((prevText) =>
+        prevText.replace(/\/rope\s+.*$/, `[rope:${option.id}]`)
+      );
+      setShowRopeOptions(false);
+    }}
+    onClose={() => setShowRopeOptions(false)}
+  />
+)}
             {/* Expanded Form */}
             {isExpanded && (
                 <form className="note-form" onSubmit={handleSubmit}>
