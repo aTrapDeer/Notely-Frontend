@@ -12,6 +12,7 @@ const NoteList = ({ notes, onDeleteClick, onEdit, workspaceRef, zoomLevel }) => 
           onEdit={onEdit}
           workspaceRef={workspaceRef}
           zoomLevel={zoomLevel}
+          allNotes={notes}
         />
       ))}
     </div>

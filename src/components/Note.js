@@ -14,7 +14,8 @@ const Note = ({
   onDeleteClick, 
   onEdit, 
   workspaceRef, 
-  zoomLevel
+  zoomLevel,
+  allNotes
 }) => {
   const { setDisableWorkspaceDrag } = useContext(WorkspaceContext);
   const noteRef = useRef(null);
@@ -231,6 +232,9 @@ const Note = ({
   }, [isMaximized]);
   
 
+
+
+
   const handleResizeMouseUp = useCallback(() => {
     if (isResizing && !isMaximized) {
       setIsResizing(false);
@@ -248,6 +252,7 @@ const Note = ({
       const index = node.position.start.line - 1; // Markdown lines are 1-indexed
     
       return (
+        
         <div className="checkbox-item">
           <input
             type="checkbox"
@@ -451,7 +456,7 @@ const handleMouseMoveEdgeDetection = useCallback(
 
     if (newActiveEdge !== activeEdge) {
       setActiveEdge(newActiveEdge);
-      console.log('Active Edge:', newActiveEdge);
+      //console.log('Active Edge:', newActiveEdge);
     }
   },
   [activeEdge, isMaximized]
@@ -732,16 +737,17 @@ const MaximizedNote = () => {
 
 return (
   <>
+
     <div
       ref={noteRef}
       className={`note ${isMaximized ? 'maximized' : ''}`}
       style={{
-        position: 'absolute', // Always absolute; maximized is handled via portal
+        position: 'absolute', 
         left: `${position.x}px`,
         top: `${position.y}px`,
         width: `${size.width}px`,
         height: `${size.height}px`,
-        zIndex: isMaximized ? 9998 : (isDragging ? 998 : 'auto'), // Lower z-index when maximized
+        zIndex: isMaximized ? 9998 : (isDragging ? 998 : 'auto'), 
         cursor: isDragging
             ? 'grabbing'
             : activeEdge

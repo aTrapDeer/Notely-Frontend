@@ -7,6 +7,7 @@ import MdEditor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
 import OptionsWindow from './noteFunctions/OptionsWindow';
 import './NoteForm.css';
+import RopeOptions from './noteFunctions/RopeOptions';
 
 const mdParser = new MarkdownIt();
 
@@ -19,7 +20,8 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
     const [ropeOptions, setRopeOptions] = useState([]);
     const [showRopeOptions, setShowRopeOptions] = useState(false);
     const [selectedRopeNote, setSelectedRopeNote] = useState(null);
-    
+    const [isRoping, setIsRoping] = useState(false);
+
     const [showOptionsWindow, setShowOptionsWindow] = useState(false);
     const [state, setState] = useState({
         title: '',
@@ -135,8 +137,8 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
     const handleEditorChange = ({ text }) => {
         const lines = text.split('\n');
         const updatedLines = lines.map(line => {
-            if (line.trim().startsWith('/todo')) {
-                return line.replace('/todo', '- [ ]');
+            if (line.trim().startsWith('/todo') || line.trim().startsWith('/checkbox')) {
+                return line.replace('/todo', '- [ ]').replace('/checkbox', '- [ ]');
             }
             return line;
         });
@@ -155,18 +157,19 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
 
         setNoteText(updatedText);
         debouncedSetNoteText(updatedText);
-            // Detect '/rope' command
+            
+        // Detect '/rope' command
             const ropeCommandMatch = text.match(/\/rope\s+(.*)$/);
             if (ropeCommandMatch) {
-            const query = ropeCommandMatch[1].trim();
-            setRopeQuery(query);
+                const query = ropeCommandMatch[1].trim();
+                setRopeQuery(query);
             if (query.length > 0) {
             // Fetch matching notes from the backend
             fetchMatchingNotes(query);
             setShowRopeOptions(true);
-            } else {
-            setShowRopeOptions(false);
-            }
+                } else {
+                setShowRopeOptions(false);
+                }
             } else {
             setShowRopeOptions(false);
             }
@@ -188,7 +191,33 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
         } else {
             setShowOptionsWindow(false);
         }
+          // Detect '/rope' command
+        if (lastLine === '/rope') {
+            setIsRoping(true);
+            setShowRopeOptions(true);
 
+            // Remove '/rope' from the note text
+            const updatedLines = lines.slice(0, -1);
+            const updatedText = updatedLines.join('\n');
+            setNoteText(updatedText);
+
+            if (editorRef.current) {
+            editorRef.current.setText(updatedText);
+            }
+        } else if (isRoping) {
+            // User is typing the rope query
+            const query = lastLine;
+            setRopeQuery(query);
+
+            if (query.length > 0) {
+            fetchMatchingNotes(query);
+            setShowRopeOptions(true);
+            } else {
+            setShowRopeOptions(false);
+            }
+        } else {
+            setShowRopeOptions(false);
+        }
 
     };
 
@@ -201,9 +230,10 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                 query,
               },
             });
-            setRopeOptions(response.data.notes);
+            setRopeOptions(response.data.notes || []);
           } catch (error) {
             console.error('Error fetching matching notes:', error);
+            setRopeOptions([]);
           }
         }, 300),
         [userDetails]
@@ -266,9 +296,9 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
             content: noteText,
             privacyType: state.visibility,
             organization: state.organization,
-
             positionX: workspaceTransform.x,
-            positionY: workspaceTransform.y
+            positionY: workspaceTransform.y,
+            linkedNoteId: selectedRopeNote ? selectedRopeNote.id : null,
         };
         //console.log("Testing note data post")
         //console.log(noteData)
@@ -282,6 +312,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
             id: Math.random() * 10,
         });
         setNoteText('');
+        setSelectedRopeNote(null);
         setIsExpanded(false);
     };
 
@@ -294,20 +325,31 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                     {isExpanded ? 'Close' : 'Expand'}
                 </button>
             </div>
+            {/* Rope and rope options*/}
             {showRopeOptions && (
-  <OptionsWindow
-    options={ropeOptions}
-    onSelect={(option) => {
-      setSelectedRopeNote(option);
-      // Replace '/rope {title}' with a placeholder in the note text
-      setNoteText((prevText) =>
-        prevText.replace(/\/rope\s+.*$/, `[rope:${option.id}]`)
-      );
-      setShowRopeOptions(false);
-    }}
-    onClose={() => setShowRopeOptions(false)}
-  />
-)}
+                <RopeOptions
+                    options={ropeOptions}
+                    onSelect={(option) => {
+                    setSelectedRopeNote(option);
+                    setIsRoping(false);
+                    setShowRopeOptions(false);
+
+                    // Optionally, insert a placeholder in the note text
+                    const linkedNoteText = `\n[Linked to: ${option.title}]`;
+                    setNoteText((prevText) => prevText + linkedNoteText);
+
+                    if (editorRef.current) {
+                        editorRef.current.setText(noteText + linkedNoteText);
+                    }
+                    }}
+                    onClose={() => {
+                    setIsRoping(false);
+                    setShowRopeOptions(false);
+                    }}
+                />
+                )}
+
+
             {/* Expanded Form */}
             {isExpanded && (
                 <form className="note-form" onSubmit={handleSubmit}>
