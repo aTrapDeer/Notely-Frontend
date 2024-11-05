@@ -20,15 +20,15 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
   }, [setWorkspaceTransform]);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e) => { 
         if (e.code === 'Space' && !isTypingInInput(e)) {
-            e.preventDefault();
+            // e.preventDefault();
             setisSpacePressed(true);
         }
     };
     const handleKeyUp = (e) => {
         if (e.code === 'Space' && !isTypingInInput(e)) {
-            e.preventDefault();
+            // e.preventDefault();
             setisSpacePressed(false);
             setIsDragging(false);
         }
@@ -67,7 +67,7 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
       if (e.target.closest('.note')) {
         return;
       }
-      e.preventDefault();
+      // e.preventDefault();
       setIsDragging(true);
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
     }
@@ -83,7 +83,7 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
   // Touch feedback for touch devices
   const handleTouchStart = useCallback(
     (e) => {
-      e.preventDefault();
+      // e.preventDefault();
       if (e.touches.length === 1) {
         // Single touch - start dragging
         setIsDragging(true);
@@ -107,10 +107,7 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
 
   const handleTouchMove = useCallback(
     (e) => {
-      e.preventDefault();
-
       if (e.touches.length === 1 && isDragging && !disableWorkspaceDrag) {
-        // Single touch - continue dragging
         const deltaX = e.touches[0].clientX - lastMousePosRef.current.x;
         const deltaY = e.touches[0].clientY - lastMousePosRef.current.y;
         requestAnimationFrame(() => {
@@ -173,7 +170,7 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
 
   const handleWheel = useCallback((e) => {
     if (isSpacePressed) {
-      e.preventDefault();
+      // e.preventDefault();
       const zoom = 1 - e.deltaY * 0.001;
       const boundingRect = containerRef.current.getBoundingClientRect();
       const mouseX = e.clientX - boundingRect.left;
@@ -193,11 +190,42 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
     }
   }, [isSpacePressed, updateTransform]);
 
+  useEffect(() => {
+    // Prevent pull-to-refresh on mobile browsers
+    document.body.style.overscrollBehavior = 'none';
+    
+    return () => {
+      document.body.style.overscrollBehavior = 'auto';
+    };
+  }, []);
+
+  // Add this new function to handle document level touch move
+  useEffect(() => {
+    const preventPullToRefresh = (e) => {
+      if (e.touches.length === 1) {
+        e.preventDefault();
+      }
+    };
+
+    // Add the event listener with the passive: false option
+    document.addEventListener('touchmove', preventPullToRefresh, { 
+      passive: false 
+    });
+
+    return () => {
+      document.removeEventListener('touchmove', preventPullToRefresh);
+    };
+  }, []);
+
   return (
     <WorkspaceContext.Provider value={{ setDisableWorkspaceDrag }}>
       <div 
         ref={containerRef}
         className="workspace-container h-full w-full overflow-hidden"
+        style={{
+          touchAction: 'none',
+          overscrollBehavior: 'none'
+        }}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}

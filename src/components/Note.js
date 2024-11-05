@@ -117,8 +117,6 @@ const Note = ({
         clientY - top < grabAreaHeight;
   
       if (isInGrabArea) {
-        e.preventDefault();
-        e.stopPropagation();
         setIsDragging(true);
         setOffset({
           x: (clientX - left) / zoomLevel,
@@ -131,8 +129,6 @@ const Note = ({
 
   const handleTouchMove = useCallback((e) => {
     if (isDragging && e.touches.length === 1 && workspaceRef && workspaceRef.current && !isMaximized) {
-      // Existing dragging logic
-      e.preventDefault();
       e.stopPropagation();
       const touch = e.touches[0];
       const { clientX, clientY } = touch;
@@ -151,8 +147,6 @@ const Note = ({
     }
 
     if (isResizing && e.touches.length === 1 && workspaceRef && workspaceRef.current && !isMaximized) {
-      // Resizing logic
-      e.preventDefault();
       e.stopPropagation();
       const touch = e.touches[0];
       const { clientX, clientY } = touch;
@@ -184,7 +178,6 @@ const Note = ({
 
   const handleResizeMouseDown = useCallback((e) => {
     if (!isMaximized) { 
-      e.preventDefault();
       e.stopPropagation();
       setIsResizing(true);
       setDisableWorkspaceDrag(true);
@@ -373,8 +366,7 @@ const Note = ({
         clientY - top < grabAreaHeight; 
 
       if (isInGrabArea) {
-        event.preventDefault();
-        event.stopPropagation(); 
+         event.stopPropagation(); 
         setIsDragging(true);
         setOffset({
           x: (clientX - left) / zoomLevel,
@@ -384,9 +376,7 @@ const Note = ({
     }
   }, [isEditing, zoomLevel, isMaximized]);
   
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
+  const handleSubmit = (e) => {    
     if (!editedNote.title.trim()) {
       alert('Title cannot be empty.');
       return;
@@ -788,7 +778,6 @@ return (
           onMouseDown={handleResizeMouseDown}
           onTouchStart={(e) => {
             if (!isMaximized) {
-              e.preventDefault();
               e.stopPropagation();
               setIsResizing(true); 
               const touch = e.touches[0];
