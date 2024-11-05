@@ -12,7 +12,8 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
   const lastMousePosRef = useRef({ x: 0, y: 0 });
   const pinchDataRef = useRef({ initialDistance: 0, initialScale: 1, lastTouches: [] });
 
-
+  const MIN_SCALE = 0.25;
+  const MAX_SCALE = 3;
 
   const updateTransform = useCallback((newTransform) => {
     setInternalWorkspaceTransform(newTransform);
@@ -107,6 +108,39 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
 
   const handleTouchMove = useCallback(
     (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.touches.length === 2) {
+        const [touch1, touch2] = e.touches;
+        const newDistance = Math.hypot(
+          touch2.clientX - touch1.clientX,
+          touch2.clientY - touch1.clientY
+        );
+
+        const centerX = (touch1.clientX + touch2.clientX) / 2;
+        const centerY = (touch1.clientY + touch2.clientY) / 2;
+
+        const scaleChange = newDistance / pinchDataRef.current.initialDistance;
+        const newScale = Math.max(
+          MIN_SCALE,
+          Math.min(pinchDataRef.current.initialScale * scaleChange, MAX_SCALE)
+        );
+
+        if (newScale >= MIN_SCALE && newScale <= MAX_SCALE) {
+          requestAnimationFrame(() => {
+            updateTransform((prev) => {
+              const scaleRatio = newScale / prev.scale;
+              return {
+                x: prev.x - (centerX - prev.x) * (scaleRatio - 1),
+                y: prev.y - (centerY - prev.y) * (scaleRatio - 1),
+                scale: newScale,
+              };
+            });
+          });
+        }
+      }
+
       if (e.touches.length === 1 && isDragging && !disableWorkspaceDrag) {
         const deltaX = e.touches[0].clientX - lastMousePosRef.current.x;
         const deltaY = e.touches[0].clientY - lastMousePosRef.current.y;
@@ -118,35 +152,6 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
           }));
         });
         lastMousePosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      } else if (e.touches.length === 2) {
-        // Two fingers - pinch zoom
-        const [touch1, touch2] = e.touches;
-        const newDistance = Math.hypot(
-          touch2.clientX - touch1.clientX,
-          touch2.clientY - touch1.clientY
-        );
-        const scaleChange = newDistance / pinchDataRef.current.initialDistance;
-        const newScale = Math.max(
-          0.1,
-          Math.min(pinchDataRef.current.initialScale * scaleChange, 3)
-        );
-
-        const boundingRect = containerRef.current.getBoundingClientRect();
-        const centerX =
-          (touch1.clientX + touch2.clientX) / 2 - boundingRect.left;
-        const centerY =
-          (touch1.clientY + touch2.clientY) / 2 - boundingRect.top;
-
-        requestAnimationFrame(() => {
-          updateTransform((prev) => {
-            const scaleRatio = newScale / prev.scale;
-            return {
-              x: prev.x - (centerX - prev.x) * (scaleRatio - 1),
-              y: prev.y - (centerY - prev.y) * (scaleRatio - 1),
-              scale: newScale,
-            };
-          });
-        });
       }
     },
     [isDragging, updateTransform, disableWorkspaceDrag]
@@ -217,22 +222,65 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
     };
   }, []);
 
+  useEffect(() => {
+    // Prevent all default touch actions
+    document.addEventListener('touchmove', (e) => e.preventDefault(), { 
+      passive: false 
+    });
+    
+    // Disable page zooming
+    document.documentElement.style.touchAction = 'none';
+    document.body.style.touchAction = 'none';
+    
+    // Prevent bouncing effect on iOS
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    
+    return () => {
+      document.documentElement.style.touchAction = '';
+      document.body.style.touchAction = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    };
+  }, []);
+
   return (
-    <WorkspaceContext.Provider value={{ setDisableWorkspaceDrag }}>
+    <WorkspaceContext.Provider value={{ 
+      setDisableWorkspaceDrag,
+      minScale: MIN_SCALE,
+      maxScale: MAX_SCALE
+    }}>
       <div 
         ref={containerRef}
         className="workspace-container h-full w-full overflow-hidden"
         style={{
           touchAction: 'none',
-          overscrollBehavior: 'none'
+          overscrollBehavior: 'none',
+          WebkitOverflowScrolling: 'touch',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          willChange: 'transform',
+          userSelect: 'none',
+          WebkitUserSelect: 'none'
         }}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onMouseMove={handleMouseMove}
         onWheel={handleWheel}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          handleTouchStart(e);
+        }}
+        onTouchMove={(e) => {
+          e.preventDefault();
+          handleTouchMove(e);
+        }}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchCancel}
       >
