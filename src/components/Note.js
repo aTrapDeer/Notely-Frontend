@@ -245,23 +245,17 @@ const Note = ({
       const index = node.position.start.line - 1; // Markdown lines are 1-indexed
     
       return (
-        
-        <div className="checkbox-item">
+        <div className="checkbox-item" key={`checkbox-${index}`}>
           <input
             type="checkbox"
             checked={isChecked}
             onChange={() => handleCheckboxChange(index)}
-            className="checkbox"
-            onTouchStart={(e) => e.stopPropagation()} // Prevent touch events from bubbling up
-            onClick={(e) => e.stopPropagation()} // Prevent click events from bubbling up
-            onPointerDown={(e) => e.stopPropagation()} // For pointer events
+            className="checkbox checkbox-primary no-animation"
+            onTouchStart={(e) => e.stopPropagation()} 
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
           />
-          <span
-            className={isChecked ? 'checkbox-label checked' : 'checkbox-label'}
-            onTouchStart={(e) => e.stopPropagation()} // Prevent touch events from bubbling up
-            onClick={(e) => e.stopPropagation()} // Prevent click events from bubbling up
-            onPointerDown={(e) => e.stopPropagation()} // For pointer events
-          >
+          <span className={`checkbox-label ${isChecked ? 'checked' : ''}`}>
             {label}
           </span>
         </div>
