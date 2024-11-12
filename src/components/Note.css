@@ -12,7 +12,8 @@
   display: flex;
   align-items: center;
   margin: 5px 0;
-  padding-left: 0; 
+  padding-left: 15px !important;
+  padding-right: 15px !important;
   width: 100%;
   list-style-type: none; 
 }
@@ -519,7 +520,8 @@
   display: flex;
   align-items: center;
   margin: 5px 0;
-  padding-left: 0; 
+  padding-left: 15px !important;
+  padding-right: 15px !important;
   width: 100%;
   list-style-type: none; 
 }
@@ -527,7 +529,7 @@
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
   .checkbox-item {
-    padding-left: 25px !important;
+    padding-left: 35px !important;
     padding-right: 15px !important;
   }
 
