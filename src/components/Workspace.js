@@ -89,7 +89,6 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
         setIsDragging(true);
         lastMousePosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
       } else if (e.touches.length === 2) {
-        // Two fingers - start pinch zoom
         const [touch1, touch2] = e.touches;
         const distance = Math.hypot(
           touch2.clientX - touch1.clientX,
@@ -99,6 +98,10 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
           initialDistance: distance,
           initialScale: workspaceTransform.scale,
           lastTouches: [touch1, touch2],
+          center: {
+            x: (touch1.clientX + touch2.clientX) / 2,
+            y: (touch1.clientY + touch2.clientY) / 2
+          }
         };
       }
     },
@@ -217,15 +220,41 @@ const Workspace = forwardRef(({ children, setWorkspaceTransform }, ref) => {
     };
   }, []);
 
+  
+  // Add this new useEffect
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    const preventDefaultGesture = (e) => {
+      e.preventDefault();
+    };
+
+    element.addEventListener('touchmove', preventDefaultGesture, { passive: false });
+    element.addEventListener('gesturestart', preventDefaultGesture, { passive: false });
+    element.addEventListener('gesturechange', preventDefaultGesture, { passive: false });
+    element.addEventListener('gestureend', preventDefaultGesture, { passive: false });
+
+    return () => {
+      element.removeEventListener('touchmove', preventDefaultGesture);
+      element.removeEventListener('gesturestart', preventDefaultGesture);
+      element.removeEventListener('gesturechange', preventDefaultGesture);
+      element.removeEventListener('gestureend', preventDefaultGesture);
+    };
+  }, []);
+
   return (
     <WorkspaceContext.Provider value={{ setDisableWorkspaceDrag }}>
-      <div 
-        ref={containerRef}
-        className="workspace-container h-full w-full overflow-hidden"
-        style={{
-          touchAction: 'none',
-          overscrollBehavior: 'none'
-        }}
+    <div 
+      ref={containerRef}
+      className="workspace-container h-full w-full overflow-hidden"
+      style={{
+        touchAction: 'none',
+        overscrollBehavior: 'none',
+        WebkitOverflowScrolling: 'touch',
+        WebkitUserSelect: 'none',
+        userSelect: 'none'
+      }}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}

@@ -122,24 +122,27 @@ function App({ signOut, user }) {
   };
 
   useEffect(() => {
-    // Prevent default touch behaviors
-    const preventDefault = (e) => {
+    const preventBrowserGestures = (e) => {
+      e.preventDefault();
+    };
+
+    // Prevent all gesture events
+    document.addEventListener('gesturestart', preventBrowserGestures, { passive: false });
+    document.addEventListener('gesturechange', preventBrowserGestures, { passive: false });
+    document.addEventListener('gestureend', preventBrowserGestures, { passive: false });
+    
+    // Prevent double-tap zoom
+    document.addEventListener('touchstart', (e) => {
       if (e.touches.length > 1) {
         e.preventDefault();
       }
-    };
-
-    // Prevent iOS Safari zoom
-    document.addEventListener('touchmove', preventDefault, { passive: false }); 
-    document.addEventListener('gesturestart', preventDefault);
-    document.addEventListener('gesturechange', preventDefault);
-    document.addEventListener('gestureend', preventDefault);
+    }, { passive: false });
 
     return () => {
-      document.removeEventListener('touchmove', preventDefault);
-      document.removeEventListener('gesturestart', preventDefault);
-      document.removeEventListener('gesturechange', preventDefault);
-      document.removeEventListener('gestureend', preventDefault);
+      document.removeEventListener('gesturestart', preventBrowserGestures);
+      document.removeEventListener('gesturechange', preventBrowserGestures);
+      document.removeEventListener('gestureend', preventBrowserGestures);
+      document.removeEventListener('touchstart', preventBrowserGestures);
     };
   }, []);
 
