@@ -251,7 +251,7 @@ const Note = ({
             checked={isChecked}
             onChange={() => handleCheckboxChange(index)}
             className="checkbox checkbox-primary no-animation"
-            onTouchStart={(e) => e.stopPropagation()} 
+            onTouchStart={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
           />
@@ -967,4 +967,4 @@ return (
 );
 };
 
-export default Note;
+export default Note; 
