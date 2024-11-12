@@ -18,9 +18,31 @@
 }
 
 .checkbox {
-    margin-right: 8px;
-    margin-top: 0;
-    flex-shrink: 0;
+    margin-right: 8px !important;
+    margin-top: 0 !important;
+    flex-shrink: 0 !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    width: 20px !important;
+    height: 20px !important;
+    border: 2px solid #4f46e5 !important;
+    border-radius: 4px !important;
+    background-color: white !important;
+    position: relative !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+}
+
+.checkbox:checked {
+    background-color: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+}
+
+.checkbox:checked::after {
+    content: none !important;
 }
 
 .edit-buttons {
@@ -505,18 +527,17 @@
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
   .checkbox-item {
-    padding-left: 15px !important; /* Add left padding on mobile */
-    padding-right: 15px !important; /* Add right padding on mobile */
+    padding-left: 25px !important;
+    padding-right: 15px !important;
   }
 
   .checkbox {
-    margin-right: 12px !important; /* Increase spacing between checkbox and label on mobile */
-    min-width: 24px !important; /* Ensure minimum width */
-    min-height: 24px !important; /* Ensure minimum height */
-    transform: scale(1.1) !important; /* Slightly larger on mobile */
+    margin-right: 12px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    transform: scale(1.1) !important;
   }
 
-  /* Ensure the note content doesn't clip the checkboxes */
   .note-content {
     padding-left: 5px !important;
     padding-right: 5px !important;
