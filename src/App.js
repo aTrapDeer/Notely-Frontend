@@ -121,24 +121,45 @@ function App({ signOut, user }) {
     handleSubmit(noteData, workspaceTransform);
   };
 
+  useEffect(() => {
+    // Prevent default touch behaviors
+    const preventDefault = (e) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    };
 
-return (
-  <div className="App h-screen flex flex-col">
-    <TopBar signOut={signOut} />
-    <div className="flex-grow overflow-hidden relative" style={{ paddingBottom: '60px' }}>
-      {/* Added paddingBottom to accommodate the toolbar height when collapsed */}
-      
-      <NoteForm
-            onSubmit={handleNoteSubmit}
-            userDetails={userDetails}
-            workspaceTransform={workspaceTransform}
-            onSimilarNotes={handleSimilarNotes}
-            similarNotes={similarNotes}  // Pass similarNotes to NoteForm
-          /> 
+    // Prevent iOS Safari zoom
+    document.addEventListener('touchmove', preventDefault, { passive: false }); 
+    document.addEventListener('gesturestart', preventDefault);
+    document.addEventListener('gesturechange', preventDefault);
+    document.addEventListener('gestureend', preventDefault);
 
-      <Workspace setWorkspaceTransform={setWorkspaceTransform} ref={workspaceRef}>
-        <div className="space-y-20">
-                  {/* Render the rope */}
+    return () => {
+      document.removeEventListener('touchmove', preventDefault);
+      document.removeEventListener('gesturestart', preventDefault);
+      document.removeEventListener('gesturechange', preventDefault);
+      document.removeEventListener('gestureend', preventDefault);
+    };
+  }, []);
+
+  return (
+    <div className="App h-screen flex flex-col">
+      <TopBar signOut={signOut} />
+      <div className="flex-grow overflow-hidden relative" style={{ paddingBottom: '60px' }}>
+        {/* Added paddingBottom to accommodate the toolbar height when collapsed */}
+        
+        <NoteForm
+              onSubmit={handleNoteSubmit}
+              userDetails={userDetails}
+              workspaceTransform={workspaceTransform}
+              onSimilarNotes={handleSimilarNotes} 
+              similarNotes={similarNotes}  // Pass similarNotes to NoteForm
+            /> 
+
+        <Workspace setWorkspaceTransform={setWorkspaceTransform} ref={workspaceRef}>
+          <div className="space-y-20">
+                    {/* Render the rope */}
       {ropes.length > 0 && (
             <svg className="rope-svg">
               {ropes.map((path, index) => (
