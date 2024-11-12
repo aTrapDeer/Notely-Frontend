@@ -18,22 +18,9 @@
 }
 
 .checkbox {
-    margin-right: 8px !important;
-    margin-top: 0 !important;
-    flex-shrink: 0 !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;                        
-    appearance: none !important;
-    width: 20px !important;
-    height: 20px !important;
-    border: 2px solid #4f46e5 !important; /* Solid border color */
-    border-radius: 4px !important;
-    background-color: white !important;
-    position: relative !important;
-    cursor: pointer !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
-    box-sizing: border-box !important;
+    margin-right: 8px;
+    margin-top: 0;
+    flex-shrink: 0;
 }
 
 .edit-buttons {
@@ -505,33 +492,34 @@
   }
 }
 
-/* Checked state for all devices including iOS */
-.checkbox:checked {
-  background-color: #4f46e5 !important;
-  border-color: #4f46e5 !important;
+/* Base checkbox styles */
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+  padding-left: 0; 
+  width: 100%;
+  list-style-type: none; 
 }
 
-/* Checkmark for iOS */
-.checkbox:checked::after {
-  content: '✓' !important;
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  color: white !important;
-  font-size: 14px !important;
-  line-height: 1 !important;
-}
-
-/* iOS-specific adjustments */
-@supports (-webkit-touch-callout: none) {
-  .checkbox {
-    visibility: visible !important;
-    border: 2px solid #4f46e5 !important;
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .checkbox-item {
+    padding-left: 15px !important; /* Add left padding on mobile */
+    padding-right: 15px !important; /* Add right padding on mobile */
   }
-  
-  .checkbox:checked {
-    background-color: #4f46e5 !important;
+
+  .checkbox {
+    margin-right: 12px !important; /* Increase spacing between checkbox and label on mobile */
+    min-width: 24px !important; /* Ensure minimum width */
+    min-height: 24px !important; /* Ensure minimum height */
+    transform: scale(1.1) !important; /* Slightly larger on mobile */
+  }
+
+  /* Ensure the note content doesn't clip the checkboxes */
+  .note-content {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
   }
 }
 
