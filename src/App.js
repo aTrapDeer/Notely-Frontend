@@ -31,6 +31,12 @@ function App({ signOut, user }) {
   // const [ropePath, setRopePath] = useState(null);
   // const ropeRef = useRef(null);
 
+  const [isTopBarCollapsed, setIsTopBarCollapsed] = useState(false);
+
+  const toggleTopBar = () => {
+    setIsTopBarCollapsed(!isTopBarCollapsed);
+  };
+
   const handleSimilarNotes = (notes) => {
     setSimilarNotes(notes);
     ////console.log('Similar notes:', notes);
@@ -148,8 +154,12 @@ function App({ signOut, user }) {
 
   return (
     <div className="App h-screen flex flex-col">
-      <TopBar signOut={signOut} />
-      <div className="flex-grow overflow-hidden relative" style={{ paddingBottom: '60px' }}>
+      <TopBar 
+        signOut={signOut} 
+        isCollapsed={isTopBarCollapsed} 
+        onToggleCollapse={toggleTopBar}
+      />
+      <div className={`flex-grow overflow-hidden relative ${isTopBarCollapsed ? 'pt-8' : 'pt-0'}`}>
         {/* Added paddingBottom to accommodate the toolbar height when collapsed */}
         
         <NoteForm
