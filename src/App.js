@@ -18,7 +18,7 @@ import ReactDOM from 'react-dom';
 Amplify.configure(awsExports);
 
 function App({ signOut, user }) {
-  
+  const [theme, setTheme] = useState('light');
   const [userDetails, setUserDetails] = useState(null);
   const [workspaceTransform, setWorkspaceTransform] = useState({ x: 0, y: 0, scale: 1 });
   const workspaceRef = useRef(null);
@@ -64,6 +64,11 @@ function App({ signOut, user }) {
     }
   }, [user]);
 
+  useEffect(() => {
+    // Force light theme
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+  }, []);
 
   // Generate ropes for each note pair
   useEffect(() => {
