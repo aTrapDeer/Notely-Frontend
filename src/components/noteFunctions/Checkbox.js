@@ -10,14 +10,14 @@ const Checkbox = ({ initialChecked, onChange, label }) => {
   };
 
   return (
-    <div className="flex items-center">
+    <div className="checkbox-item">
       <input
         type="checkbox"
         checked={isChecked}
         onChange={handleToggle}
-        className="form-checkbox h-5 w-5 text-blue-600"
+        className="checkbox"
       />
-      <span className="ml-2 text-gray-700">{label}</span>
+      <span className={`checkbox-label ${isChecked ? 'checked' : ''}`}>{label}</span>
     </div>
   );
 };
