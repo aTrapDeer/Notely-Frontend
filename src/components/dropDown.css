@@ -76,3 +76,39 @@
   outline: none; /* Remove the outline */
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* Visible focus ring */
 }
+
+/* Update the button and menu styles */
+.dropdown label {
+  background-color: #3b82f6 !important; /* Primary blue color */
+  color: white !important; /* Force white text */
+}
+
+.dropdown-content {
+  background-color: white;
+  color: #374151;
+}
+
+/* Override any conflicting styles */
+.btn.btn-primary {
+  color: white !important;
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+}
+
+.dropdown-content.menu {
+  background-color: white !important;
+  color: #374151 !important;
+}
+
+.dropdown-content.menu li a {
+  color: #374151 !important;
+}
+
+/* Hover states */
+.dropdown-content.menu li:hover {
+  background-color: #f3f4f6;
+}
+
+.dropdown-content.menu li a:hover {
+  background-color: #f3f4f6;
+}

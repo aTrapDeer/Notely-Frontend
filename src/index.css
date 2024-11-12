@@ -21,6 +21,13 @@ code {
 }
 
 
+/* Force light theme on inputs and buttons */
+input, textarea {
+  background-color: white !important;
+  color: black !important;
+}
+
+
 .custom-input {
   width: 100%;
   padding: 10px;
