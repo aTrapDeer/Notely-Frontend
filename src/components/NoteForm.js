@@ -34,6 +34,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
     const [isExpanded, setIsExpanded] = useState(false); 
     const editorRef = useRef(null);
     const [showGPTOptions, setShowGPTOptions] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const debounce = (func, delay) => {
         let timeoutId;
@@ -292,6 +293,10 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
         setNoteText(newText);
         if (editorRef.current) {
             editorRef.current.setText(newText);
+            // Force focus back to editor after modal closes
+            setTimeout(() => {
+                editorRef.current.focus();
+            }, 100);
         }
     };
 
@@ -498,8 +503,14 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
             {/* Add GPTOptions component */}
             {showGPTOptions && (
                 <GPTOptions
-                    onSelect={handleGPTContent}
-                    onClose={() => setShowGPTOptions(false)}
+                    onSelect={(content) => {
+                        handleGPTContent(content);
+                        setIsModalOpen(false);
+                    }}
+                    onClose={() => {
+                        setShowGPTOptions(false);
+                        setIsModalOpen(false);
+                    }}
                 />
             )}
         </div>

@@ -58,9 +58,23 @@ function GPTOptions({ onSelect, onClose }) {
     }
   };
 
+  // Add touch event handlers
+  const handleOverlayTouch = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
-    <div className="gpt-options-overlay">
-      <div className="gpt-options-window">
+    <div 
+      className="gpt-options-overlay" 
+      onTouchMove={handleOverlayTouch}
+      onClick={(e) => {
+        if (e.target.className === 'gpt-options-overlay') {
+          onClose();
+        }
+      }}
+    >
+      <div className="gpt-options-window" onClick={e => e.stopPropagation()}>
         <h3>What would you like to write about?</h3>
         <form onSubmit={handleSubmit}>
           <textarea
