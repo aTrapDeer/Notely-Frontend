@@ -69,3 +69,13 @@
   border-radius: 4px;
   font-size: 14px;
 }
+
+.preview-content {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f3f4f6;
+  border-radius: 0.375rem;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}

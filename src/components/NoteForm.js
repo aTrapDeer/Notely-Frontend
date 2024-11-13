@@ -138,12 +138,30 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
 
     const handleEditorChange = ({ text }) => {
         const lines = text.split('\n');
+        // Check if there are any lines before accessing the last one
+        const lastLine = lines.length > 0 ? lines[lines.length - 1] : '';
+        
+        // Check for GPT commands immediately
+        const gptCommands = ['/gpt', '/ChatGPT', '/Write4Me', '/AIwrite'];
+        if (lastLine && gptCommands.includes(lastLine.trim())) {
+            // Remove the command
+            lines.pop();
+            const updatedText = lines.join('\n');
+            setNoteText(updatedText);
+            if (editorRef.current) {
+                editorRef.current.setText(updatedText);
+            }
+            setShowGPTOptions(true);
+            return;
+        }
+
         const updatedLines = lines.map(line => {
             if (line.trim().startsWith('/todo') || line.trim().startsWith('/checkbox')) {
                 return line.replace('/todo', '- [ ]').replace('/checkbox', '- [ ]');
             }
             return line;
         });
+        
         let updatedText = updatedLines.join('\n');
         
         if (text.endsWith('\n')) {
@@ -159,34 +177,10 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
 
         setNoteText(updatedText);
         debouncedSetNoteText(updatedText);
-            
-        // Detect '/rope' command
-            const ropeCommandMatch = text.match(/\/rope\s+(.*)$/);
-            if (ropeCommandMatch) {
-                const query = ropeCommandMatch[1].trim();
-                setRopeQuery(query);
-            if (query.length > 0) {
-            // Fetch matching notes from the backend
-            fetchMatchingNotes(query);
-            setShowRopeOptions(true);
-                } else {
-                setShowRopeOptions(false);
-                }
-            } else {
-            setShowRopeOptions(false);
-            }
-
-        if (updatedText !== text) {
-            setTimeout(() => {
-                if (editorRef.current) {
-                    editorRef.current.setText(updatedText);
-                }
-            }, 0);
-        }
         
-        const lastLine = updatedLines[updatedLines.length - 1];
-        const words = lastLine.split(' ');
-        const lastWord = words[words.length - 1];
+        // Check for commands in the last word
+        const words = lastLine ? lastLine.split(' ') : [];
+        const lastWord = words.length > 0 ? words[words.length - 1] : '';
 
         if (lastWord === '/' || (lastWord.startsWith('/') && lastWord !== '/todo')) {
             setShowOptionsWindow(true);
@@ -268,7 +262,6 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                 if (lastWord.startsWith('/')) {
                     setIsRoping(true);
                     setShowRopeOptions(true);
-                    // Remove the /rope command
                     words.pop();
                     lines[lines.length - 1] = words.join(' ');
                     updatedText = lines.join('\n');
@@ -276,7 +269,6 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                 break;
             case 'gpt':
                 if (lastWord.startsWith('/')) {
-                    // Remove the /gpt command
                     words.pop();
                     lines[lines.length - 1] = words.join(' ');
                     updatedText = lines.join('\n');
@@ -286,6 +278,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
             default:
                 break;
         }
+        
         setNoteText(updatedText);
         setShowOptionsWindow(false);
         if (editorRef.current) {

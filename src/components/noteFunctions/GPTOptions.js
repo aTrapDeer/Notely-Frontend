@@ -5,40 +5,51 @@ function GPTOptions({ onSelect, onClose }) {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [streamedContent, setStreamedContent] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setStreamedContent('');
+    let fullContent = ''; // Track the complete content
 
     try {
-      console.log('Sending request to generate note:', { prompt });
-      
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/generate-note`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          'Accept': 'text/event-stream',
         },
         body: JSON.stringify({ prompt }),
       });
 
-      console.log('Received response:', response);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+        
+        lines.forEach(line => {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              fullContent += data.content; // Add to full content
+              setStreamedContent(fullContent); // Show in preview
+            } catch (e) {
+              console.error('Error parsing streaming data:', e);
+            }
+          }
+        });
       }
 
-      const data = await response.json();
-      console.log('Parsed response data:', data);
-
-      if (data.success) {
-        onSelect(data.content);
-        onClose();
-      } else {
-        setError(data.error || 'Failed to generate note content');
-      }
+      // Once streaming is complete, update the note and close
+      onSelect(fullContent);
+      onClose();
     } catch (error) {
       console.error('Error generating note:', error);
       setError(error.message || 'Failed to connect to the server');
@@ -58,6 +69,11 @@ function GPTOptions({ onSelect, onClose }) {
             placeholder="Describe what you want GPT to write about..."
             rows={4}
           />
+          {streamedContent && (
+            <div className="preview-content">
+              {streamedContent}
+            </div>
+          )}
           {error && (
             <div className="error-message">
               {error}
