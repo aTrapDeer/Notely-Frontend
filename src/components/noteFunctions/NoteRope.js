@@ -26,6 +26,7 @@ const handleEditorChange = ({ text }) => {
   }
 };
 
+
 const fetchMatchingNotes = useCallback(
   debounce(async (query) => {
     try {

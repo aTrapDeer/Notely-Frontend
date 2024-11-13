@@ -51,8 +51,6 @@ function OptionsWindow({ onSelect, onClose, showOptionsWindow, options }) {
         aria-modal="true"
         aria-labelledby="options-window-title"
       >
-
-        {/* If options are provided, display them */}
         {options && options.length > 0 ? (
           options.map((option) => (
             <div
@@ -73,7 +71,6 @@ function OptionsWindow({ onSelect, onClose, showOptionsWindow, options }) {
           ))
         ) : (
           <>
-            {/* Default options when no options are provided */}
             <div
               className="option-item"
               onClick={handleOptionClick('todo')}
@@ -88,6 +85,7 @@ function OptionsWindow({ onSelect, onClose, showOptionsWindow, options }) {
             >
               Checkbox
             </div>
+
             <div
               className="option-item"
               onClick={handleOptionClick('rope')}
@@ -101,6 +99,21 @@ function OptionsWindow({ onSelect, onClose, showOptionsWindow, options }) {
               aria-label="Create Rope"
             >
               Note Rope
+            </div>
+
+            <div
+              className="option-item"
+              onClick={handleOptionClick('gpt')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleOptionClick('gpt')(e);
+                }
+              }}
+              aria-label="Generate note data"
+            >
+              Generate Note Data
             </div>
           </>
         )}

@@ -8,6 +8,7 @@ import 'react-markdown-editor-lite/lib/index.css';
 import OptionsWindow from './noteFunctions/OptionsWindow';
 import './NoteForm.css';
 import RopeOptions from './noteFunctions/RopeOptions';
+import GPTOptions from './noteFunctions/GPTOptions';
 
 const mdParser = new MarkdownIt();
 
@@ -32,6 +33,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
     });
     const [isExpanded, setIsExpanded] = useState(false); 
     const editorRef = useRef(null);
+    const [showGPTOptions, setShowGPTOptions] = useState(false);
 
     const debounce = (func, delay) => {
         let timeoutId;
@@ -262,12 +264,23 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                     updatedText = lines.join('\n');
                 }
                 break;
-            // Add more cases for other options as needed
-            case 'heading':
+            case 'rope':
                 if (lastWord.startsWith('/')) {
-                    words[words.length - 1] = '# ';
+                    setIsRoping(true);
+                    setShowRopeOptions(true);
+                    // Remove the /rope command
+                    words.pop();
                     lines[lines.length - 1] = words.join(' ');
                     updatedText = lines.join('\n');
+                }
+                break;
+            case 'gpt':
+                if (lastWord.startsWith('/')) {
+                    // Remove the /gpt command
+                    words.pop();
+                    lines[lines.length - 1] = words.join(' ');
+                    updatedText = lines.join('\n');
+                    setShowGPTOptions(true);
                 }
                 break;
             default:
@@ -277,6 +290,15 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
         setShowOptionsWindow(false);
         if (editorRef.current) {
             editorRef.current.setText(updatedText);
+        }
+    };
+
+    // Add handler for GPT-generated content
+    const handleGPTContent = (content) => {
+        const newText = noteText + '\n' + content;
+        setNoteText(newText);
+        if (editorRef.current) {
+            editorRef.current.setText(newText);
         }
     };
 
@@ -476,6 +498,14 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                     Add Note
                 </button>
                 </form>
+            )}
+
+            {/* Add GPTOptions component */}
+            {showGPTOptions && (
+                <GPTOptions
+                    onSelect={handleGPTContent}
+                    onClose={() => setShowGPTOptions(false)}
+                />
             )}
         </div>
     );

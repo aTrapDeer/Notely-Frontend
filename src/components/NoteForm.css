@@ -25,7 +25,7 @@
 
 /* Expanded state */
 .note-form-container.expanded {
-    height: 80vh; /* 80% of the viewport height */
+    height: 70vh; /* Reduced from 80vh */
 }
 
 /* Toolbar header */
@@ -33,7 +33,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 8px 15px; /* Reduced from 10px 20px */
+    height: 50px; /* Fixed height for header */
     cursor: pointer;
     background-color: #4f46e5; /* Indigo-600 */
     color: white;
@@ -57,15 +58,15 @@
 
 /* Form styling */
 .note-form {
-    padding: 20px;
-    height: calc(80vh - 60px); /* Adjust based on header height */
+    padding: 10px; /* Reduced from 20px */
+    height: calc(70vh - 50px); /* Adjusted for new header height */
     overflow-y: auto;
 }
 
 /* Ensure inputs take full width */
 .title-input {
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 8px; /* Reduced margin */
 }
 
 .tag-input {
@@ -74,6 +75,7 @@
 
 .tag-input input {
     width: 100%;
+    padding: 6px; /* Reduced padding */
 }
 
 .tag-list {
@@ -84,11 +86,11 @@
 .tag {
     display: flex;
     align-items: center;
-    padding: 5px 10px;
-    margin: 5px;
+    padding: 3px 8px; /* Reduced padding */
+    margin: 3px; /* Reduced margin */
     background-color: #bfdbfe; /* Blue-300 */
     border-radius: 15px;
-    font-size: 0.9rem;
+    font-size: 0.8rem; /* Smaller font */
 }
 
 .delete-tag {
@@ -102,7 +104,7 @@
 
 .relative {
     position: relative;
-    margin-bottom: 10px;
+    margin-bottom: 8px; /* Reduced margin */
 }
 
 .recommendations {
@@ -120,16 +122,17 @@
     background-color: #e5e7eb; /* Gray-200 */
     border-radius: 25px;
     overflow: hidden;
-    margin-bottom: 10px;
+    margin-bottom: 8px; /* Reduced margin */
 }
 
 .slider-option {
     flex: 1;
     text-align: center;
-    padding: 10px 0;
+    padding: 8px 0; /* Reduced padding */
     cursor: pointer;
     z-index: 1;
     position: relative;
+    font-size: 0.9rem; /* Smaller font */
 }
 
 .slider-option.active {
@@ -159,11 +162,12 @@
     padding: 8px;
     border: 2px solid #4f46e5; /* Indigo-600 */
     border-radius: 5px;
+    padding: 6px; /* Reduced padding */
 }
 
 .note-button {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     background-color: #4f46e5; /* Indigo-600 */
     color: white;
     border: none;
@@ -171,6 +175,7 @@
     cursor: pointer;
     font-size: 1rem;
     transition: background-color 0.2s ease-in-out;
+    margin-top: 8px;
 }
 
 .note-button:hover {
@@ -179,20 +184,23 @@
 
 /* Adjust the Markdown editor */
 .react-md-editor {
-    height: 100% !important;
+    height: 300px !important; /* Fixed height for editor */
 }
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
     .note-form-container.expanded {
-        height: 90vh;
-    }
-
-    .toolbar-header {
-        padding: 15px;
+        height: 80vh; /* Slightly increased for better usability */
     }
 
     .note-form {
-        padding: 15px;
+        padding: 10px;
+    }
+
+    /* Ensure buttons are large enough to tap */
+    .note-button {
+        padding: 12px;
+        margin-top: 8px;
+        font-size: 1rem;
     }
 }
