@@ -6,26 +6,25 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    /* Remove max-width and margin to span full width */
-    /* max-width: 600px; */
-    /* margin: 0 auto; */
     background-color: #f9f9f9;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     transition: transform 0.3s ease-in-out, height 0.3s ease-in-out;
     z-index: 1000;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Collapsed state */
 .note-form-container.collapsed {
-    height: 60px; /* Height of the toolbar header */
+    height: 50px;
 }
 
-/* Expanded state */
+/* Expanded state - Larger for desktop */
 .note-form-container.expanded {
-    height: 70vh; /* Reduced from 80vh */
+    height: 80vh;
+    max-height: calc(100vh - 20px);
 }
 
 /* Toolbar header */
@@ -33,10 +32,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 15px; /* Reduced from 10px 20px */
-    height: 50px; /* Fixed height for header */
-    cursor: pointer;
-    background-color: #4f46e5; /* Indigo-600 */
+    padding: 8px 15px;
+    min-height: 50px;
+    flex-shrink: 0;
+    background-color: #4f46e5;
     color: white;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -58,15 +57,18 @@
 
 /* Form styling */
 .note-form {
-    padding: 10px; /* Reduced from 20px */
-    height: calc(70vh - 50px); /* Adjusted for new header height */
+    flex: 1;
     overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 /* Ensure inputs take full width */
 .title-input {
     width: 100%;
-    margin-bottom: 8px; /* Reduced margin */
+    margin-bottom: 8px;
 }
 
 .tag-input {
@@ -75,7 +77,7 @@
 
 .tag-input input {
     width: 100%;
-    padding: 6px; /* Reduced padding */
+    padding: 6px;
 }
 
 .tag-list {
@@ -86,11 +88,11 @@
 .tag {
     display: flex;
     align-items: center;
-    padding: 3px 8px; /* Reduced padding */
-    margin: 3px; /* Reduced margin */
-    background-color: #bfdbfe; /* Blue-300 */
+    padding: 3px 8px;
+    margin: 3px;
+    background-color: #bfdbfe;
     border-radius: 15px;
-    font-size: 0.8rem; /* Smaller font */
+    font-size: 0.8rem;
 }
 
 .delete-tag {
@@ -104,12 +106,13 @@
 
 .relative {
     position: relative;
-    margin-bottom: 8px; /* Reduced margin */
+    margin-bottom: 8px;
 }
 
 .recommendations {
-    max-height: 150px;
+    max-height: 200px;
     overflow-y: auto;
+    margin: 15px 0;
 }
 
 .content-type {
@@ -119,20 +122,20 @@
 .slider-container {
     display: flex;
     position: relative;
-    background-color: #e5e7eb; /* Gray-200 */
+    background-color: #e5e7eb;
     border-radius: 25px;
     overflow: hidden;
-    margin-bottom: 8px; /* Reduced margin */
+    margin-bottom: 8px;
 }
 
 .slider-option {
     flex: 1;
     text-align: center;
-    padding: 8px 0; /* Reduced padding */
+    padding: 8px 0;
     cursor: pointer;
     z-index: 1;
     position: relative;
-    font-size: 0.9rem; /* Smaller font */
+    font-size: 0.9rem;
 }
 
 .slider-option.active {
@@ -146,7 +149,7 @@
     left: 0;
     width: 33.3333%;
     height: 100%;
-    background-color: #4f46e5; /* Indigo-600 */
+    background-color: #4f46e5;
     border-radius: 25px;
     transition: transform 0.3s ease-in-out;
     z-index: 0;
@@ -160,15 +163,15 @@
 .organization-input {
     width: 100%;
     padding: 8px;
-    border: 2px solid #4f46e5; /* Indigo-600 */
+    border: 2px solid #4f46e5;
     border-radius: 5px;
-    padding: 6px; /* Reduced padding */
+    padding: 6px;
 }
 
 .note-button {
     width: 100%;
     padding: 12px;
-    background-color: #4f46e5; /* Indigo-600 */
+    background-color: #4f46e5;
     color: white;
     border: none;
     border-radius: 5px;
@@ -179,28 +182,76 @@
 }
 
 .note-button:hover {
-    background-color: #4338ca; /* Indigo-700 */
+    background-color: #4338ca;
 }
 
 /* Adjust the Markdown editor */
 .react-md-editor {
-    height: 300px !important; /* Fixed height for editor */
+    height: 400px !important;
+    max-height: 50vh !important;
+    margin-bottom: 15px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
+/* Mobile adjustments */
+@media (max-width: 768px) {
     .note-form-container.expanded {
-        height: 80vh; /* Slightly increased for better usability */
+        height: 85vh;
+        max-height: calc(100vh - 50px);
     }
 
     .note-form {
-        padding: 10px;
+        padding: 8px;
+        gap: 8px;
     }
 
-    /* Ensure buttons are large enough to tap */
+    input, textarea {
+        font-size: 16px !important;
+    }
+
+    .react-md-editor {
+        height: 150px !important;
+        max-height: 30vh !important;
+    }
+
     .note-button {
         padding: 12px;
-        margin-top: 8px;
-        font-size: 1rem;
+        min-height: 44px;
+        margin: 5px 0;
     }
+
+    * {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .recommendations {
+        max-height: 120px;
+    }
+
+    /* Stack panels vertically on mobile */
+    .rc-md-editor .section-container {
+        width: 100% !important;
+    }
+    
+    .rc-md-editor .section-container.input {
+        height: 50% !important;
+    }
+    
+    .rc-md-editor .section-container.preview {
+        height: 50% !important;
+    }
+}
+
+/* GPT Options styling */
+.gpt-options-window {
+    max-height: 80vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fix for iOS momentum scrolling */
+.note-form,
+.recommendations,
+.gpt-options-window {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
