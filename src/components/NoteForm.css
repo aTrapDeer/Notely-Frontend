@@ -197,47 +197,65 @@
     .note-form-container.expanded {
         height: 85vh;
         max-height: calc(100vh - 50px);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        overflow: hidden;
     }
 
     .note-form {
         padding: 8px;
         gap: 8px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        height: calc(100% - 20px);
+        padding-bottom: 10px;
+        display: flex;
+        flex-direction: column;
     }
 
-    input, textarea {
-        font-size: 16px !important;
-    }
-
+    /* Fix editor height on mobile */
     .react-md-editor {
-        height: 150px !important;
-        max-height: 30vh !important;
+        flex: 1 !important; /* Take remaining space */
+        height: auto !important;
+        min-height: 200px !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
 
-    .note-button {
-        padding: 12px;
-        min-height: 44px;
-        margin: 5px 0;
+    /* Fix the editor container */
+    .rc-md-editor {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
     }
 
-    * {
+    /* Fix the section container */
+    .rc-md-editor .section-container {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: auto !important;
         -webkit-overflow-scrolling: touch;
     }
 
-    .recommendations {
-        max-height: 120px;
+    /* Fix the textarea */
+    .rc-md-editor textarea {
+        flex: 1 !important;
+        height: 100% !important;
+        min-height: 150px !important;
+        padding: 10px !important;
+        font-size: 16px !important;
     }
 
-    /* Stack panels vertically on mobile */
-    .rc-md-editor .section-container {
-        width: 100% !important;
-    }
-    
-    .rc-md-editor .section-container.input {
-        height: 50% !important;
-    }
-    
+    /* Remove any extra spacing */
+    .rc-md-editor .section-container.input,
     .rc-md-editor .section-container.preview {
-        height: 50% !important;
+        height: 100% !important;
+        min-height: 150px !important;
+        overflow: auto !important;
     }
 }
 

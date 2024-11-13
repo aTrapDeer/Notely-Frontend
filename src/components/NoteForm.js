@@ -293,9 +293,12 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
         setNoteText(newText);
         if (editorRef.current) {
             editorRef.current.setText(newText);
-            // Force focus back to editor after modal closes
+            // Focus the textarea inside the editor instead
             setTimeout(() => {
-                editorRef.current.focus();
+                const textarea = editorRef.current?.mdEditor?.getTextArea();
+                if (textarea) {
+                    textarea.focus();
+                }
             }, 100);
         }
     };
