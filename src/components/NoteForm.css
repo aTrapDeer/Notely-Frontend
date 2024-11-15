@@ -287,32 +287,40 @@
 
 /* Fix: Ensure proper event handling in the editor area */
 .rc-md-editor {
-    pointer-events: auto !important; /* Force enable pointer events */
-    touch-action: auto !important; /* Enable all touch actions */
+    pointer-events: auto !important;
+    touch-action: auto !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 .rc-md-editor .section-container {
-    pointer-events: auto !important;
-    touch-action: manipulation !important; /* Better touch handling */
+    flex: 1 !important;
+    touch-action: pan-y pinch-zoom !important;
+    -webkit-overflow-scrolling: touch !important;
 }
 
 .rc-md-editor textarea {
     pointer-events: auto !important;
     touch-action: manipulation !important;
-    user-select: text !important; /* Enable text selection */
     -webkit-user-select: text !important;
+    user-select: text !important;
+    font-size: 16px !important;
 }
 
-/* Fix: Ensure overlays don't block interaction */
+/* Remove any pointer-events: none that might be inherited */
+.note-form,
+.note-form * {
+    pointer-events: auto;
+}
+
+/* Ensure overlays don't interfere with editor */
 .gpt-options-overlay,
 .options-overlay {
-    pointer-events: auto;
-    touch-action: none; /* Prevent scroll/zoom on the overlay */
+    pointer-events: none;
 }
 
 .gpt-options-window,
-.options-window,
-.note-form {
+.options-window {
     pointer-events: auto;
-    touch-action: auto;
 }

@@ -140,14 +140,6 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
     };
 
     const handleEditorChange = ({ text }) => {
-        if (editorRef.current) {
-            const textarea = editorRef.current.mdEditor?.getTextArea();
-            if (textarea) {
-                textarea.style.pointerEvents = 'auto';
-                textarea.style.touchAction = 'manipulation';
-            }
-        }
-        
         const lines = text.split('\n');
         // Check if there are any lines before accessing the last one
         const lastLine = lines.length > 0 ? lines[lines.length - 1] : '';
@@ -466,9 +458,6 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                             syncScrollMode: ['leftFollowRight', 'rightFollowLeft'],
                             htmlClass: 'custom-html-style',
                             markdownClass: 'custom-markdown-style',
-                            onTouchStart: (e) => e.stopPropagation(),
-                            onTouchMove: (e) => e.stopPropagation(),
-                            onTouchEnd: (e) => e.stopPropagation(),
                         }}
                     />
                     {similarNotes.length > 0 && (
