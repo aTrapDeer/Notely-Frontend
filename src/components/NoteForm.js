@@ -140,6 +140,14 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
     };
 
     const handleEditorChange = ({ text }) => {
+        if (editorRef.current) {
+            const textarea = editorRef.current.mdEditor?.getTextArea();
+            if (textarea) {
+                textarea.style.pointerEvents = 'auto';
+                textarea.style.touchAction = 'manipulation';
+            }
+        }
+        
         const lines = text.split('\n');
         // Check if there are any lines before accessing the last one
         const lastLine = lines.length > 0 ? lines[lines.length - 1] : '';
@@ -443,7 +451,6 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                         renderHTML={renderHTML}
                         onChange={handleEditorChange}
                         view={{ menu: true, md: true, html: false }}
-                        canView={{ menu: true, md: true, html: true, both: true }}
                         config={{
                             view: {
                                 menu: true,
@@ -458,10 +465,11 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                             },
                             syncScrollMode: ['leftFollowRight', 'rightFollowLeft'],
                             htmlClass: 'custom-html-style',
-                            markdownClass: 'custom-markdown-style'
+                            markdownClass: 'custom-markdown-style',
+                            onTouchStart: (e) => e.stopPropagation(),
+                            onTouchMove: (e) => e.stopPropagation(),
+                            onTouchEnd: (e) => e.stopPropagation(),
                         }}
-                        onTouchStart={(e) => e.stopPropagation()}
-                        onTouchMove={(e) => e.stopPropagation()}
                     />
                     {similarNotes.length > 0 && (
                         <div className="recommendations mt-4 bg-gray-100 p-4 rounded-lg">

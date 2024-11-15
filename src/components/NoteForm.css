@@ -284,3 +284,35 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
+
+/* Fix: Ensure proper event handling in the editor area */
+.rc-md-editor {
+    pointer-events: auto !important; /* Force enable pointer events */
+    touch-action: auto !important; /* Enable all touch actions */
+}
+
+.rc-md-editor .section-container {
+    pointer-events: auto !important;
+    touch-action: manipulation !important; /* Better touch handling */
+}
+
+.rc-md-editor textarea {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    user-select: text !important; /* Enable text selection */
+    -webkit-user-select: text !important;
+}
+
+/* Fix: Ensure overlays don't block interaction */
+.gpt-options-overlay,
+.options-overlay {
+    pointer-events: auto;
+    touch-action: none; /* Prevent scroll/zoom on the overlay */
+}
+
+.gpt-options-window,
+.options-window,
+.note-form {
+    pointer-events: auto;
+    touch-action: auto;
+}
