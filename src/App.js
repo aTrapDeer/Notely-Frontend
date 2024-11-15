@@ -107,7 +107,7 @@ function App({ signOut, user }) {
 
               const path = `M${from.x},${from.y} C${from.x},${from.y - controlPointOffset} ${to.x},${to.y + controlPointOffset} ${to.x},${to.y}`;
 
-              console.log(`Creating rope from note ${note.id} to note ${linkedNote.id}: ${path}`);
+              // console.log(`Creating rope from note ${note.id} to note ${linkedNote.id}: ${path}`);
 
               newRopes.push(path);
               processedPairs.add(pairKey);
@@ -118,7 +118,7 @@ function App({ signOut, user }) {
         }
       });
 
-      console.log(`Total ropes generated: ${newRopes.length}`);
+      // console.log(`Total ropes generated: ${newRopes.length}`);
       setRopes(newRopes);
     }
   }, [notes, workspaceRef]);

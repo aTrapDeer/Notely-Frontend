@@ -3,7 +3,7 @@ import Dropdown from './dropDown';
 
 function TopBar({ signOut, isCollapsed, onToggleCollapse }) {
   return (
-    <div className="relative">
+    <header className="w-full">
       <div className={`top-bar fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-blue-600 to-blue-700 shadow-lg transition-all duration-300 ease-in-out ${
         isCollapsed ? 'h-8' : 'h-14'
       }`}>
@@ -43,9 +43,9 @@ function TopBar({ signOut, isCollapsed, onToggleCollapse }) {
         </div>
       </div>
 
-      {/* Spacer to prevent content from going under the topbar */}
-      <div className={`${isCollapsed ? 'h-8' : 'h-14'} w-full`} />
-    </div>
+      {/* Spacer div with fixed height */}
+      <div className={`${isCollapsed ? 'h-8' : 'h-14'}`} />
+    </header>
   );
 }
 

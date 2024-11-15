@@ -702,8 +702,19 @@ const MaximizedNote = () => {
           <div className="note-content" onClick={handleContentClick}>
             {renderContent(note.content, handleCheckboxChange)}
           </div>
-          <p className="note-tags">{note.tags.join(', ')}</p>
-          <p className="note-visibility">Visibility: {note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}</p>
+          <div className="note-tags">
+            {note.tags.map((tag, index) => (
+              <span key={index} className="tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+          <div 
+            className="note-visibility" 
+            data-visibility={note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}
+          >
+            {note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}
+          </div>
           <button 
             className="edit-note" 
             onClick={handleEditClick} 
@@ -814,7 +825,7 @@ return (
                 y: (clientY - top) / zoomLevel,
               });
             }
-          }}
+          }}            
         />
       )}
 
@@ -947,8 +958,19 @@ return (
           <div className="note-content" onClick={handleContentClick}>
             {renderContent(note.content, handleCheckboxChange)}
           </div>
-          <p className="note-tags">{note.tags.join(', ')}</p>
-          <p className="note-visibility">Visibility: {note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}</p>
+          <div className="note-tags">
+            {note.tags.map((tag, index) => (
+              <span key={index} className="tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+          <div 
+            className="note-visibility" 
+            data-visibility={note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}
+          >
+            {note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}
+          </div>
           <button 
             className="edit-note" 
             onClick={handleEditClick} 
