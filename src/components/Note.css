@@ -117,14 +117,15 @@
   position: relative;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 1.5em !important;
-  backdrop-filter: blur(12px);
+  /* backdrop-filter: blur(12px);
   background-image: linear-gradient(
     to bottom right,
     rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.85)
-  );
+    rgba(255, 255, 255, 0.85)    
+  ); */
   border-left: 4px solid #4f46e5;
   padding-bottom: 60px !important;
+  height: 100%;
 }
 
 .note-highlight {
@@ -527,7 +528,6 @@
   touch-action: pan-y !important;
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch !important;
-  height: calc(100% - 160px) !important; /* Adjust based on your header/footer heights */
 }
 /* Add transition for transform and size changes */
 .note {

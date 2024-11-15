@@ -169,7 +169,7 @@
     position: relative;
     min-height: 10em;
     padding: 0.5rem;
-    border: 2px solid #bfdbfe;
+    /* border: 2px solid #bfdbfe; */
     border-radius: 4px;
     background-color: #ffffff;
     overflow: auto;
@@ -181,9 +181,9 @@
     border-color: #3b82f6;
   }
   
-  .note-content div {
+  /* .note-content div {
     display: inline;
-  }
+  } */
   
   .note-content input[type="checkbox"] {
     display: inline;

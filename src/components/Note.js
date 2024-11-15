@@ -576,168 +576,188 @@ useEffect(() => {
     return content.replace(/- \[ \]/g, '☐').replace(/- \[x\]/g, '☑');
   };
 
+  const handleContentTouch = useCallback((e) => {
+    if (isMaximized) {
+      e.stopPropagation();
+    }
+  }, [isMaximized]);
+
 // Function to render the maximized note via Portal
 const MaximizedNote = () => {
   return ReactDOM.createPortal(
-    <div className="note maximized">
-      {/* Header Buttons */}
-      <div className="note-header-buttons">
-        <button 
-          className="maximize-button" 
-          onClick={toggleMaximize}
-          aria-label={isMaximized ? 'Minimize Note' : 'Maximize Note'}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-        >
-          {isMaximized ? <FaCompress /> : <FaExpand />}
-        </button>
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 z-[9998]"
+      onClick={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
+      <div 
+        className="note maximized"
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+      >
+        {/* Header Buttons */}
+        <div className="note-header-buttons">
+          <button 
+            className="maximize-button" 
+            onClick={toggleMaximize}
+            aria-label={isMaximized ? 'Minimize Note' : 'Maximize Note'}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            {isMaximized ? <FaCompress /> : <FaExpand />}
+          </button>
 
-        <button 
-          className="delete-note" 
-          onClick={handleDeleteClick}
-          aria-label="Delete Note"
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-        >
-          &times;
-        </button>
-      </div>
+          <button 
+            className="delete-note" 
+            onClick={handleDeleteClick}
+            aria-label="Delete Note"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            &times;
+          </button>
+        </div>
 
-      {isEditing ? (
-        <form onSubmit={handleSubmit} className="note-edit-form">
-          {/* Edit Form Header */}
-          <div className="edit-form-header">
-            <input
-              type="text"
-              name="title"
-              value={editedNote.title}
-              onChange={handleEditChange}
-              placeholder="Title"
-              className="title-edit-input"
-              required
-            />
-          </div>
-
-          {/* Edit Form Body */}
-          <div className="edit-form-body">
-            {/* Tags Edit Input */}
-            <div className="tag-edit-input">
+        {isEditing ? (
+          <form onSubmit={handleSubmit} className="note-edit-form">
+            {/* Edit Form Header */}
+            <div className="edit-form-header">
               <input
                 type="text"
-                name="tags"
-                value={editedNote.tags.join(', ')}
+                name="title"
+                value={editedNote.title}
                 onChange={handleEditChange}
-                placeholder="Tags (comma-separated)"
-                className="tags-edit-input"
+                placeholder="Title"
+                className="title-edit-input"
+                required
               />
-              <div className="tag-list">
-                {editedNote.tags.map((tag, index) => (
-                  <span key={index} className="tag-edit">
-                    {tag}
-                    <button
-                      type="button"
-                      className="delete-tag-edit"
-                      onClick={() => handleTagDelete(index)}
-                      aria-label={`Delete tag ${tag}`}
-                    >
-                      &times;
-                    </button>
-                  </span>
-                ))}
-              </div>
             </div>
 
-            {/* Edit Textarea */}
-            <textarea
-              name="content"
-              value={editedNote.content}
-              onChange={handleEditChange}
-              placeholder="Take a note..."
-              className="note-edit-textarea"
-              required
-              onKeyDown={(e) => e.stopPropagation()}
-            />
-
-            {/* Edit Form Footer: Privacy Options */}
-            <div className="edit-form-footer">
-              <div className="slider-container">
-                <div
-                  className={`slider-option ${editedNote.privacyType === 'global' ? 'active' : ''}`}
-                  onClick={() => handleVisibilityChange('global')}
-                >
-                  <span className="slider-label">Global (Public)</span>
-                </div>
-                <div
-                  className={`slider-option ${editedNote.privacyType === 'organization' ? 'active' : ''}`}
-                  onClick={() => handleVisibilityChange('organization')}
-                >
-                  <span className="slider-label">Organization</span>
-                </div>
-                <div
-                  className={`slider-option ${editedNote.privacyType === 'private' ? 'active' : ''}`}
-                  onClick={() => handleVisibilityChange('private')}
-                >
-                  <span className="slider-label">Private</span>
-                </div>
-                <div className="slider-background" style={{ transform: `translateX(${getSliderPosition()}%)` }}></div>
-              </div>
-              {editedNote.privacyType === 'organization' && (
+            {/* Edit Form Body */}
+            <div className="edit-form-body">
+              {/* Tags Edit Input */}
+              <div className="tag-edit-input">
                 <input
                   type="text"
-                  name="organization"
-                  value={editedNote.organization}
+                  name="tags"
+                  value={editedNote.tags.join(', ')}
                   onChange={handleEditChange}
-                  placeholder="Organization"
-                  className="organization-edit-input"
-                  required
+                  placeholder="Tags (comma-separated)"
+                  className="tags-edit-input"
                 />
-              )}
+                <div className="tag-list">
+                  {editedNote.tags.map((tag, index) => (
+                    <span key={index} className="tag-edit">
+                      {tag}
+                      <button
+                        type="button"
+                        className="delete-tag-edit"
+                        onClick={() => handleTagDelete(index)}
+                        aria-label={`Delete tag ${tag}`}
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Edit Textarea */}
+              <textarea
+                name="content"
+                value={editedNote.content}
+                onChange={handleEditChange}
+                placeholder="Take a note..."
+                className="note-edit-textarea"
+                required
+                onKeyDown={(e) => e.stopPropagation()}
+              />
+
+              {/* Edit Form Footer: Privacy Options */}
+              <div className="edit-form-footer">
+                <div className="slider-container">
+                  <div
+                    className={`slider-option ${editedNote.privacyType === 'global' ? 'active' : ''}`}
+                    onClick={() => handleVisibilityChange('global')}
+                  >
+                    <span className="slider-label">Global (Public)</span>
+                  </div>
+                  <div
+                    className={`slider-option ${editedNote.privacyType === 'organization' ? 'active' : ''}`}
+                    onClick={() => handleVisibilityChange('organization')}
+                  >
+                    <span className="slider-label">Organization</span>
+                  </div>
+                  <div
+                    className={`slider-option ${editedNote.privacyType === 'private' ? 'active' : ''}`}
+                    onClick={() => handleVisibilityChange('private')}
+                  >
+                    <span className="slider-label">Private</span>
+                  </div>
+                  <div className="slider-background" style={{ transform: `translateX(${getSliderPosition()}%)` }}></div>
+                </div>
+                {editedNote.privacyType === 'organization' && (
+                  <input
+                    type="text"
+                    name="organization"
+                    value={editedNote.organization}
+                    onChange={handleEditChange}
+                    placeholder="Organization"
+                    className="organization-edit-input"
+                    required
+                  />
+                )}
+              </div>
+              <div className="edit-buttons">
+                <button type="button" className="edit-cancel-button" onClick={handleEditCancel}>
+                  Cancel
+                </button>
+                <button type="submit" className="edit-save-button">
+                  Save
+                </button>
+              </div>
             </div>
-            <div className="edit-buttons">
-              <button type="button" className="edit-cancel-button" onClick={handleEditCancel}>
-                Cancel
-              </button>
-              <button type="submit" className="edit-save-button">
-                Save
-              </button>
+          </form>
+        ) : (
+          <>
+            <h1 className="note-title">{note.title}</h1>
+            <div 
+              className="note-content" 
+              onClick={handleContentClick}
+              onTouchStart={handleContentTouch}
+              onTouchMove={handleContentTouch}
+              onTouchEnd={handleContentTouch}
+            >
+              {renderContent(note.content, handleCheckboxChange)}
             </div>
-          </div>
-        </form>
-      ) : (
-        <>
-          <h1 className="note-title">{note.title}</h1>
-          <div 
-            className="note-content" 
-            onClick={handleContentClick}
-            onTouchStart={handleContentTouch}
-            onTouchMove={handleContentTouch}
-            onTouchEnd={handleContentTouch}
-          >
-            {renderContent(note.content, handleCheckboxChange)}
-          </div>
-          <div className="note-tags">
-            {note.tags.map((tag, index) => (
-              <span key={index} className="tag">
-                {tag}
-              </span>
-            ))}
-          </div>
-          <div 
-            className="note-visibility" 
-            data-visibility={note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}
-          >
-            {note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}
-          </div>
-          <button 
-            className="edit-note" 
-            onClick={handleEditClick} 
-            onMouseDown={(e) => e.stopPropagation()}
-            aria-label="Edit Note"
-          >
-            Edit Note
-          </button>
-        </>
-      )}
+            <div className="note-tags">
+              {note.tags.map((tag, index) => (
+                <span key={index} className="tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <div 
+              className="note-visibility" 
+              data-visibility={note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}
+            >
+              {note.privacyType.charAt(0).toUpperCase() + note.privacyType.slice(1)}
+            </div>
+            <button 
+              className="edit-note" 
+              onClick={handleEditClick} 
+              onMouseDown={(e) => e.stopPropagation()}
+              aria-label="Edit Note"
+            >
+              Edit Note
+            </button>
+          </>
+        )}
+      </div>
     </div>,
     document.body
   );
