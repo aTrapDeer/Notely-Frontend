@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './GPTOptions.css';
+import './GPTWrite.css';
 
-function GPTOptions({ onSelect, onClose }) {
+function GPTWrite({ onSelect, onClose }) {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -115,5 +115,5 @@ function GPTOptions({ onSelect, onClose }) {
   );
 }
 
-export default GPTOptions;
+export default GPTWrite;
  

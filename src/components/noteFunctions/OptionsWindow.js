@@ -115,6 +115,21 @@ function OptionsWindow({ onSelect, onClose, showOptionsWindow, options }) {
             >
               Generate Note Data
             </div>
+
+            <div
+              className="option-item"
+              onClick={handleOptionClick('finish')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleOptionClick('finish')(e);
+                }
+              }}
+              aria-label="Finish note with AI"
+            >
+              Finish Note
+            </div>
           </>
         )}
       </div>

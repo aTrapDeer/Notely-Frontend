@@ -8,7 +8,8 @@ import 'react-markdown-editor-lite/lib/index.css';
 import OptionsWindow from './noteFunctions/OptionsWindow';
 import './NoteForm.css';
 import RopeOptions from './noteFunctions/RopeOptions';
-import GPTOptions from './noteFunctions/GPTOptions';
+import GPTWrite from './noteFunctions/GPTWrite';
+import GPTFinish from './noteFunctions/GPTFinish';
 
 const mdParser = new MarkdownIt();
 
@@ -35,6 +36,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
     const editorRef = useRef(null);
     const [showGPTOptions, setShowGPTOptions] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showGPTFinish, setShowGPTFinish] = useState(false);
 
     const debounce = (func, delay) => {
         let timeoutId;
@@ -276,6 +278,15 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                     setShowGPTOptions(true);
                 }
                 break;
+            case 'finish':
+                if (lastWord.startsWith('/')) {
+                    words.pop();
+                    lines[lines.length - 1] = words.join(' ');
+                    updatedText = lines.join('\n');
+                    setNoteText(updatedText);
+                    handleGPTfinish(updatedText);
+                }
+                break;
             default:
                 break;
         }
@@ -301,6 +312,10 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                 }
             }, 100);
         }
+    };
+
+    const handleGPTfinish = (content) => {
+        setShowGPTFinish(true);
     };
 
     const handleSubmit = (e) => {
@@ -338,6 +353,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
         setSelectedRopeNote(null);
         setIsExpanded(false);
     };
+
 
     return (
         <div className={`note-form-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
@@ -523,7 +539,7 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
 
             {/* Add GPTOptions component */}
             {showGPTOptions && (
-                <GPTOptions
+                <GPTWrite
                     onSelect={(content) => {
                         handleGPTContent(content);
                         setIsModalOpen(false);
@@ -532,6 +548,20 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                         setShowGPTOptions(false);
                         setIsModalOpen(false);
                     }}
+                />
+            )}
+
+            {showGPTFinish && (
+                <GPTFinish
+                    currentContent={noteText}
+                    onSelect={(content) => {
+                        setNoteText(content);
+                        if (editorRef.current) {
+                            editorRef.current.setText(content);
+                        }
+                        setShowGPTFinish(false);
+                    }}
+                    onClose={() => setShowGPTFinish(false)}
                 />
             )}
         </div>

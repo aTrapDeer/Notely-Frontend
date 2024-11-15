@@ -196,76 +196,78 @@
 @media (max-width: 768px) {
     .note-form-container.expanded {
         height: 85vh;
-        max-height: calc(100vh - 50px);
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        overflow: hidden;
-    }
-
-    .note-form {
-        padding: 8px;
-        gap: 8px;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        height: calc(100% - 20px);
-        padding-bottom: 10px;
         display: flex;
         flex-direction: column;
     }
 
-    /* Fix editor height on mobile */
-    .react-md-editor {
-        flex: 1 !important; /* Take remaining space */
-        height: auto !important;
-        min-height: 200px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        touch-action: pan-y !important;
-        -webkit-overflow-scrolling: touch !important;
-        overflow-y: auto !important;
+    .note-form {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    /* Fix the editor container */
+    /* Editor container */
+    .relative {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0; /* Critical for nested flex scrolling */
+    }
+
+    /* Markdown editor specific styles */
+    .react-md-editor {
+        flex: 1 !important;
+        min-height: 0 !important; /* Critical for nested flex scrolling */
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
     .rc-md-editor {
         flex: 1 !important;
         display: flex !important;
         flex-direction: column !important;
         overflow: hidden !important;
-        touch-action: pan-y !important;
-        -webkit-overflow-scrolling: touch !important;
     }
 
-    /* Fix the section container */
+    /* The actual editable area */
     .rc-md-editor .section-container {
         flex: 1 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow: auto !important;
-        -webkit-overflow-scrolling: touch;
-        touch-action: pan-y !important;
+        overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
     }
 
-    /* Fix the textarea */
     .rc-md-editor textarea {
-        flex: 1 !important;
         height: 100% !important;
-        min-height: 150px !important;
-        padding: 10px !important;
-        font-size: 16px !important;
         touch-action: pan-y !important;
         -webkit-overflow-scrolling: touch !important;
+        font-size: 16px !important; /* Prevent zoom on iOS */
     }
 
-    /* Remove any extra spacing */
-    .rc-md-editor .section-container.input,
-    .rc-md-editor .section-container.preview {
-        height: 100% !important;
-        min-height: 150px !important;
-        overflow: auto !important;
+    /* Recommendations area */
+    .recommendations {
+        margin-top: 10px;
+        max-height: 150px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
+
+    /* Ensure buttons are easily tappable */
+    .note-button {
+        min-height: 44px;
+        margin: 10px 0;
+    }
+}
+
+/* Ensure proper touch handling for all scrollable areas */
+.note-form,
+.rc-md-editor,
+.rc-md-editor textarea,
+.recommendations {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* GPT Options styling */
