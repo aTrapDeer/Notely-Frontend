@@ -225,7 +225,14 @@ const Note = ({
   }, [isMaximized]);
   
 
-
+  useEffect(() => {
+    if (isMaximized) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'auto';
+      };
+    }
+  }, [isMaximized]);
 
 
   const handleResizeMouseUp = useCallback(() => {
@@ -699,7 +706,13 @@ const MaximizedNote = () => {
       ) : (
         <>
           <h1 className="note-title">{note.title}</h1>
-          <div className="note-content" onClick={handleContentClick}>
+          <div 
+            className="note-content" 
+            onClick={handleContentClick}
+            onTouchStart={handleContentTouch}
+            onTouchMove={handleContentTouch}
+            onTouchEnd={handleContentTouch}
+          >
             {renderContent(note.content, handleCheckboxChange)}
           </div>
           <div className="note-tags">
@@ -955,7 +968,13 @@ return (
       ) : (
         <>
           <h1 className="note-title">{note.title}</h1>
-          <div className="note-content" onClick={handleContentClick}>
+          <div 
+            className="note-content" 
+            onClick={handleContentClick}
+            onTouchStart={handleContentTouch}
+            onTouchMove={handleContentTouch}
+            onTouchEnd={handleContentTouch}
+          >
             {renderContent(note.content, handleCheckboxChange)}
           </div>
           <div className="note-tags">
