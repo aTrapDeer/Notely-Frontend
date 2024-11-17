@@ -298,7 +298,6 @@ const Note = ({
   );
   
     return (
-      <div className="note-content">
         <ReactMarkdown
           components={{
             code({node, inline, className, children, ...props}) {
@@ -336,7 +335,6 @@ const Note = ({
         >
           {content}
         </ReactMarkdown>
-      </div>
     );
   };
 

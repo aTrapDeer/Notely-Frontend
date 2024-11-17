@@ -164,17 +164,16 @@
     margin-bottom: 0.5rem;
   }
 
-
+/* 
   .note-content {
     position: relative;
     min-height: 10em;
     padding: 0.5rem;
-    /* border: 2px solid #bfdbfe; */
     border-radius: 4px;
     background-color: #ffffff;
     overflow: auto;
     white-space: pre-wrap;
-  }
+  } */
   
   .note-content:focus {
     outline: none;

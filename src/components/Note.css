@@ -508,27 +508,67 @@
 
 /* Maximized Note Styling */
 .note.maximized {
-  position: fixed !important; /* Fixed relative to the viewport */
+  position: fixed !important;
   top: 50% !important;
   left: 50% !important;
   max-width: 97%;
-  width: 100%;
+  width: 90%;
   height: 85%;
   transform: translate(-50%, -50%);
   z-index: 9999 !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-  border-radius: 0;
+  border-radius: 8px;
   padding: 20px;
-  overflow: hidden !important; /* Prevent workspace scroll bleeding */
+  overflow: hidden !important;
   background-color: white;
 }
 
-
-.note.maximized .note-content {
-  touch-action: pan-y !important;
+/* Specific styles for maximized note content */
+.maximized .note-content {
+  /* height: calc(100% - 120px) !important; Reduced from 200px to 120px */
   overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
+  overflow-x: hidden !important;
+  padding-right: 16px !important;
+  margin-right: -16px !important;
+  margin-bottom: 0px !important; /* Add space for the edit button */
 }
+
+/* Ensure edit button stays at bottom in maximized view */
+.maximized .edit-note {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+}
+
+/* Adjust title spacing in maximized view */
+.maximized .note-title {
+  margin-bottom: 12px;
+}
+
+/* Adjust tags spacing in maximized view */
+.maximized .note-tags {
+  margin: 8px 0;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.maximized-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.maximized-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.maximized-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.maximized-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 /* Add transition for transform and size changes */
 .note {
   transition: all 0.3s ease-in-out;

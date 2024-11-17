@@ -12,6 +12,8 @@ import Workspace from './components/Workspace';
 import NoteForm from './components/NoteForm';
 import NoteList from './components/NoteList';
 import useNotes from './components/useNotes';
+import SidePanel from './components/sidePanel/sidePanel';
+
 import DeleteConfirmation from './components/popups/DeleteConfirmation';
 import './components/noteFunctions/RopeOptions.css';
 import ReactDOM from 'react-dom';
@@ -159,6 +161,11 @@ function App({ signOut, user }) {
         isCollapsed={isTopBarCollapsed} 
         onToggleCollapse={toggleTopBar}
       />
+      <SidePanel 
+        userDetails={userDetails}
+      />
+
+
       <div className={`flex-grow overflow-hidden relative ${isTopBarCollapsed ? 'pt-8' : 'pt-0'}`}>
         {/* Added paddingBottom to accommodate the toolbar height when collapsed */}
         

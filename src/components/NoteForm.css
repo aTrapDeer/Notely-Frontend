@@ -23,7 +23,7 @@
 
 /* Expanded state - Larger for desktop */
 .note-form-container.expanded {
-    height: 80vh;
+    height: 90vh;
     max-height: calc(100vh - 20px);
 }
 
@@ -39,20 +39,38 @@
     color: white;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-/* Adjust padding for full-width */
+.toolbar-header:hover {
+    background-color: #4338ca;
+}
+
+.toolbar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .toolbar-title {
     font-size: 1.2rem;
     font-weight: bold;
+    user-select: none;
 }
 
-.toggle-button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
+.note-form-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+}
+
+.note-form-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
 }
 
 /* Form styling */
@@ -63,6 +81,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    height: calc(100% - 50px);
 }
 
 /* Ensure inputs take full width */
@@ -105,8 +124,11 @@
 }
 
 .relative {
-    position: relative;
-    margin-bottom: 8px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+    height: calc(100vh - 300px);
 }
 
 .recommendations {
@@ -187,9 +209,32 @@
 
 /* Adjust the Markdown editor */
 .react-md-editor {
-    height: 400px !important;
-    max-height: 50vh !important;
-    margin-bottom: 15px;
+    flex: 1 !important;
+    min-height: 300px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.rc-md-editor {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    min-height: 300px !important;
+    height: 100% !important;
+}
+
+/* The actual editable area */
+.rc-md-editor .section-container {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    min-height: 300px !important;
+    height: calc(100% - 40px) !important;
+}
+
+.rc-md-editor textarea {
+    height: 100% !important;
+    min-height: 300px !important;
 }
 
 /* Mobile adjustments */

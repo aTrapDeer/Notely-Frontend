@@ -359,10 +359,20 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
         <div className={`note-form-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
             {/* Toolbar Header */}
             <div className="toolbar-header" onClick={() => setIsExpanded(!isExpanded)}>
-                <div className="toolbar-title">New Note</div>
-                <button className="toggle-button">
-                    {isExpanded ? 'Close' : 'Expand'}
-                </button>
+                <div className="toolbar-content">
+                    <span className="toolbar-title">Add Note</span>
+                    <div className="note-form-toggle">
+                        {isExpanded ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                    </div>
+                </div>
             </div>
             {/* Rope and rope options*/}
             {showRopeOptions && (
@@ -439,22 +449,12 @@ function NoteForm({ onSubmit, userDetails, workspaceTransform, onSimilarNotes, s
                     <MdEditor
                         ref={editorRef}
                         value={noteText}
-                        style={{ height: '400px' }}
-                        renderHTML={renderHTML}
+                        style={{ height: '100%', minHeight: '300px' }}
+                        renderHTML={text => mdParser.render(text)}
                         onChange={handleEditorChange}
                         view={{ menu: true, md: true, html: false }}
+                        canView={{ menu: true, md: true, html: false, both: false }}
                         config={{
-                            view: {
-                                menu: true,
-                                md: true,
-                                html: false,
-                            },
-                            canView: {
-                                menu: true,
-                                md: true,
-                                html: true,
-                                both: true,
-                            },
                             syncScrollMode: ['leftFollowRight', 'rightFollowLeft'],
                             htmlClass: 'custom-html-style',
                             markdownClass: 'custom-markdown-style',
