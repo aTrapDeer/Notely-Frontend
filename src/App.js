@@ -74,7 +74,7 @@ function App({ signOut, user }) {
 
   useEffect(() => {
     // Force light theme
-    document.documentElement.classList.remove('dark');
+    // document.documentElement.classList.remove('dark');
     document.documentElement.classList.add('light');
   }, []);
 

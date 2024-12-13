@@ -3,19 +3,7 @@
 @import "tailwindcss/utilities";
 
 /* NoteTool.css */
-.dark-mode {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-  
-  .dark-mode h1 {
-    color: hsl(var(--primary));
-  }
-  
-  .dark-mode p {
-    color: hsl(var(--secondary));
-  }
-  
+
   .App {
     position: relative;
     touch-action: none;
