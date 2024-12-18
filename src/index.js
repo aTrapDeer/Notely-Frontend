@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import Landing from './pages/landing';
+import Features from './pages/features';
 import reportWebVitals from './reportWebVitals';
 import 'tailwindcss/tailwind.css';
 import 'daisyui/dist/full.css';  
@@ -15,6 +16,7 @@ function Root() {
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/features" element={<Features />} />
         <Route 
           path="/app" 
           element={

@@ -15,7 +15,7 @@ function Landing() {
         >
           <Link to="/" className="nav-logo">Notely</Link>
           <div className="nav-links">
-            <Link to="#features">Features</Link>
+            <Link to="/features">Features</Link>
             <Link to="#pricing">Pricing</Link>
             <Link to="/app" className="nav-cta">Get Started</Link>
           </div>
@@ -23,8 +23,8 @@ function Landing() {
       </nav>
 
       <div className="landing-container">
-        <motion.header 
-          className="landing-header"
+        <motion.section 
+          className="hero-section"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
@@ -36,7 +36,7 @@ function Landing() {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               Transform Your <span className="gradient-text">Notes</span><br />
-              with AI-Powered Insights
+              with AI-Powered Tools
             </motion.h1>
             <motion.div 
               className="hero-card"
@@ -44,7 +44,7 @@ function Landing() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              <p className="hero-description">Experience the future of note-taking with our intelligent platform that connects your thoughts and amplifies your productivity.</p>
+              <p className="hero-description">Experience the future of note-taking with our intelligent tools that connects your thoughts and amplifies your productivity.</p>
               <div className="hero-actions">
                 <Link to="/app" className="primary-button">
                   Start Free Trial
@@ -59,8 +59,8 @@ function Landing() {
           </div>
           <motion.div 
             className="hero-stats"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             <div className="stat-item">
@@ -76,7 +76,7 @@ function Landing() {
               <span className="stat-label">User Rating</span>
             </div>
           </motion.div>
-        </motion.header>
+        </motion.section>
 
         <motion.section 
           id="pricing"
@@ -158,7 +158,7 @@ function Landing() {
           <div className="features-grid">
             {[
               {
-                icon: '🔮',
+                icon: '🎯',
                 title: 'AI-Powered Insights',
                 description: 'Our advanced AI analyzes your notes to surface connections and generate valuable insights automatically.'
               },
@@ -173,7 +173,7 @@ function Landing() {
                 description: 'Enterprise-grade encryption and local storage options keep your data secure and private.'
               },
               {
-                icon: '🤝',
+                icon: '🤖',
                 title: 'Collaborative Features',
                 description: 'Share and collaborate on notes with team members while maintaining granular access control.'
               }
@@ -183,6 +183,8 @@ function Landing() {
                 className="feature-card"
                 whileHover={{ scale: 1.03 }}
                 transition={{ type: "spring", stiffness: 400 }}
+                onClick={() => window.location.href = '/features'}
+                style={{ cursor: 'pointer' }}
               >
                 <div className="feature-icon-wrapper">
                   <span className="feature-icon">{feature.icon}</span>
@@ -191,6 +193,12 @@ function Landing() {
                 <p>{feature.description}</p>
               </motion.div>
             ))}
+          </div>
+          <div className="text-center mt-12">
+            <Link to="/features" className="primary-button">
+              Explore All Features
+              <span className="button-icon">→</span>
+            </Link>
           </div>
         </motion.section>
 
